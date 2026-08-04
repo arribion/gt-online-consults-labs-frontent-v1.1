@@ -211,7 +211,80 @@ Several UI pages and widgets currently feature static mock data or UI chrome wit
 
 ---
 
-## 4. Reviewer Checklist & Discussion Points
+## 4a. ⚠️ Backend Role-Model Changes (Action Required)
+
+The backend just implemented `backend-python/task-planning.md` P1 (authorization
+enforcement) with a finalized 3-tier role model: `TASKER`, `ADMIN`, `SUPERADMIN`.
+This is a breaking change for a few things the frontend currently does. None of
+the frontend code was touched as part of this — flagging it here instead.
+
+### 1. `MANAGER` role is gone
+
+`role.ts`, `members.ts`, and `MemberForm.tsx` all declare
+`MemberRole = "TASKER" | "MANAGER" | "ADMIN"`. The backend `User.role` enum is
+now `SUPERADMIN | ADMIN | TASKER` — `MANAGER` was never produced by any real
+flow and has been dropped; `SUPERADMIN` is new.
+
+- [ ] Update `MemberRole` (all three declarations — see PR 3 above about
+      consolidating them into one) to `"TASKER" | "ADMIN" | "SUPERADMIN"`.
+- [ ] Update `MemberForm.tsx`'s role `<select>` to offer `SUPERADMIN` instead
+      of `MANAGER`, gated appropriately (see next point).
+- [ ] `ProtectedRoute.tsx`'s `allowedRoles` prop is typed
+      `("TASKER" | "ADMIN")[]` — extend to include `"SUPERADMIN"` once there's
+      a superadmin-facing route to protect.
+
+### 2. `POST /api/v1/auth/register` no longer exists
+
+`MemberForm.tsx` currently creates new members by POSTing to
+`/api/v1/auth/register` — a public, unauthenticated endpoint that accepted an
+arbitrary `role` in the body. That was a live privilege-escalation hole (any
+caller, logged in or not, could mint themselves an `ADMIN` account) and has
+been removed outright, not just tightened.
+
+Account creation now goes exclusively through the already-existing
+(now role-gated) `POST /api/v1/members`, which takes the same
+`full_name`/`email`/`password`/`role`/`phone`/`status` shape `MemberForm.tsx`
+already sends — so this should be close to a one-line endpoint swap:
+
+- [ ] In `MemberForm.tsx`, change the create-member call from
+      `api.post("/api/v1/auth/register", …)` to
+      `api.post("/api/v1/members", …)` (the update path already correctly
+      uses `PUT /api/v1/members/{id}`).
+- [ ] `POST /api/v1/members` now requires the caller to be authenticated as
+      `ADMIN` or `SUPERADMIN` (cookie-based, so this should just work given
+      `withCredentials: true` is already set — but worth confirming in
+      testing).
+- [ ] Role-tier rule to reflect in the UI: an `ADMIN` caller can only create
+      `TASKER` accounts — attempting to create/edit an `ADMIN` or
+      `SUPERADMIN` account returns `403`. Only `SUPERADMIN` can manage
+      `ADMIN`/`SUPERADMIN` accounts. Consider hiding the `ADMIN`/`SUPERADMIN`
+      role options in `MemberForm.tsx`'s dropdown when the logged-in user
+      isn't a `SUPERADMIN`, so the 403 isn't the first the user hears of it.
+
+### 3. `DELETE /api/v1/projects/{id}` no longer deletes
+
+Per the finalized role decision, hard project deletion has been disabled
+entirely. The route (same path, same HTTP verb — `ManageProjects.tsx`'s
+`api.delete(...)` call doesn't need to change) now **deactivates** the
+project instead: it purges the project's Cloudinary resources, sets
+`status = "DEACTIVATED"`, and leaves assignments and historical task/payment
+data untouched. Taskers still see the project, now showing status
+"Deactivated".
+
+- [ ] `ManageProjects.tsx`'s delete-confirmation copy/toast should say
+      "deactivate" rather than "delete" — the current wording will be
+      misleading now that the row isn't actually removed.
+- [ ] Anywhere that renders `project.status`, add a `"DEACTIVATED"` case to
+      the status badge/label logic (project status enum is now `DRAFT |
+      PENDING | ACTIVE | PAUSED | CLOSED | DEACTIVATED`).
+- [ ] `ManageProjects.tsx` likely removes the row from its local list on a
+      successful delete — since the project still exists (just deactivated),
+      confirm whether it should instead re-fetch/update the row's status in
+      place.
+
+---
+
+## 4b. Reviewer Checklist & Discussion Points
 
 Please review the proposed structure and confirm:
 
@@ -219,3 +292,8 @@ Please review the proposed structure and confirm:
 - [ ] **Service Layer Structure**: Does the modular `src/services/<domain>.service.ts` layout align with your preferred architecture, or would you prefer a single consolidated services file?
 - [ ] **Credential Issues in Forms**: Have you noticed authentication issues in `ManageProjects.tsx` or `ProjectUploadForm.tsx` that will be resolved by enforcing `withCredentials: true`?
 - [ ] **PR Sequencing**: Are you happy to proceed in the proposed 4-stage PR sequence?
+- [ ] **§4a urgency**: The `/auth/register` removal breaks `MemberForm.tsx`'s
+      create-member flow as soon as this backend change deploys — treat that
+      one endpoint swap as higher priority than the 4-PR sequence above, even
+      if the rest of §4a's cleanup (role types, deactivate copy) rides along
+      with PR 3 / PR 1 respectively.
