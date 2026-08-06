@@ -2,7 +2,7 @@
 import { Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 
-import Index from "./routes/landing";
+// import Index from "./routes/landing";
 import Resources from "./routes/client/Resources";
 import Invoices from "./routes/client/invoice/Invoices";
 import Dashboard from "./routes/client/dashboard";
@@ -17,7 +17,7 @@ import ManageResources from "./routes/admin/ManageResources";
 import ManageMembers from "./routes/admin/ManageMembers";
 
 import NotFoundComponent from "./components/NotFound";
-import About from "./routes/About";
+import About from "./routes/landing/About";
 import Login from "./routes/auth/Login";
 import InvoiceViewer from "./routes/client/invoice/InvoiceViewer";
 import AuthLayout from "./layout/AuthLayout";
@@ -30,8 +30,10 @@ import Invoicing from "./routes/admin/Invoicing";
 import Financies from "./routes/admin/Financies";
 import MyTask from "./routes/client/tasks/MyTask";
 
-import ContactUs from "./routes/ContactUs";
+import ContactUs from "./routes/landing/ContactUs";
 import Note from "./components/client/Note";
+
+import Landing from "./routes/landing/Landing";
 
 const App = () => {
   return (
@@ -44,7 +46,7 @@ const App = () => {
 
         {/* Public Main Routes */}
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Landing />} />
           <Route path="about" element={<About />} />
           <Route path="contact-us" element={<ContactUs />} />
         </Route>
