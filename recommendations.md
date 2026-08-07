@@ -190,7 +190,10 @@ export type ProjectAssignment = {
 #### Context
 Several UI pages and widgets currently feature static mock data or UI chrome without backing API endpoints:
 - `src/routes/admin/Financies.tsx` (uses hardcoded `mockMembers`)
-- `src/routes/client/Invoices.tsx` & `src/components/client/invoices/InvoiceViewer.tsx`
+- ~~`src/routes/client/Invoices.tsx` & `src/components/client/invoices/InvoiceViewer.tsx`~~
+  **Resolved 2026-08-04** — real invoicing endpoints now exist, see §5 below.
+  `Financies.tsx`'s `mockMembers` and the dashboard cards are still unaddressed
+  (those depend on the separate admin-side payments/stats work, not yet built).
 - `src/routes/admin/TasksLog.tsx`
 - `src/components/client/billing/PaymentMethods.tsx`
 - Client dashboard cards: `QuickActions.tsx`, `BalanceCard.tsx`, `ClientStats.tsx`
@@ -297,3 +300,106 @@ Please review the proposed structure and confirm:
       one endpoint swap as higher priority than the 4-PR sequence above, even
       if the rest of §4a's cleanup (role types, deactivate copy) rides along
       with PR 3 / PR 1 respectively.
+
+---
+
+## 5. [2026-08-04] Task Upload, Dispute & Invoicing — New Endpoints
+
+The backend just shipped the real task-log upload → invoice pipeline
+(`backend-python/task-planning.md` P7). None of the frontend was touched —
+flagging the new/changed surface here. Full behavioral rules (upload format,
+duplicate/dispute handling, invoice math) are documented server-side in
+`backend-python/INVOICING_RULES.md` if you need the detail behind any of this.
+
+### 1. New `User.payment_rate` field
+
+`Member`/`User` gained a `payment_rate: number` field (0–100, a percentage) —
+each tasker's negotiated revenue-share rate, used as the default on their
+generated invoices. It's returned by `GET /members/*` and accepted by
+`POST /members` and `PUT /members/{id}`, but **deliberately not accepted by
+`PUT /members/me`** — a tasker can't self-edit their own rate.
+
+- [ ] Add `payment_rate` to wherever `Member`/`User` types are declared
+      (see PR 3 above about consolidating those declarations).
+- [ ] `MemberForm.tsx`'s create/edit form should expose a `payment_rate`
+      input (admin-only, which it already is since that form is admin-gated).
+
+### 2. Task upload & task-list endpoints
+
+Replaces whatever `TaskForm.tsx`/`RecentTaskLogs.tsx`/`TaskLogExcelUpload.tsx`
+currently call — the shape is new (see the required-headers list in
+`INVOICING_RULES.md` §1 if wiring up a CSV/XLSX upload form).
+
+```
+POST /api/v1/tasks/import   multipart: file (.csv/.xlsx) + projectId form field
+POST /api/v1/tasks          { projectId, taskId, taskStatus, taskingDate, taskDuration, paidDuration, account }
+GET  /api/v1/tasks/mine     ?projectId=  — own entries, includes dispute_state, account
+```
+
+Upload responses include a human-readable `message` plus structured
+`duplicates_skipped`/`disputes_raised` fields — worth surfacing directly
+rather than re-deriving, since the dispute message names the other tasker.
+
+### 3. Dispute endpoints (new UI surface, no existing screen for this)
+
+```
+GET  /api/v1/disputes/mine                          (tasker's own)
+POST /api/v1/disputes/{id}/claim
+POST /api/v1/disputes/{id}/confirm   { confirm_task_id, transfer_to_user_id }
+GET  /api/v1/disputes                                (admin, filterable)
+GET  /api/v1/disputes/export/pdf                     (admin)
+```
+
+- [ ] There's currently no tasker-facing UI for "you have a disputed task" —
+      worth a small banner/badge wherever `dispute_state` shows up as
+      `DISPUTED` on a task-list row, since there's no email/push notification
+      backing this (the tasker only finds out by checking the app).
+- [ ] Admin needs a disputes table view — `GET /api/v1/disputes` returns
+      task ID, both parties, raised date, status, and resolution info
+      directly, so this should be a fairly thin table component.
+
+### 4. Invoicing endpoints (replaces the old ledger-based route entirely)
+
+`GET /api/v1/invoices/{projectId}/{periodId}` **no longer exists** — it was
+never functional (nothing ever populated the ledger it read from). Replaced by:
+
+```
+POST /api/v1/invoices/generate   { project_id, period_start, period_end, invoice_number? }
+GET  /api/v1/invoices            ?projectId=&status=   (role-scoped)
+GET  /api/v1/invoices/{id}
+GET  /api/v1/invoices/{id}/pdf
+```
+
+- [ ] This unblocks §4 PR 4's `Invoices.tsx`/`InvoiceViewer.tsx` — they were
+      isolated behind mock data specifically pending this. See the checked-off
+      item in §4 above.
+- [ ] One invoice = one tasker + one project + one billing period — a tasker
+      working multiple projects needs one `generate` call per project, not
+      a combined multi-project invoice (the PDF template has a single
+      rate/cap per invoice, so this was a deliberate constraint, not a gap).
+- [ ] `TASKER` callers generating their own invoice never send `rate` or
+      `payment_rate` — those are always server-computed. Only an `ADMIN`
+      generating on someone else's behalf can pass overrides.
+
+---
+
+## 6. [2026-08-05] `ACCOUNT` field added to task upload & invoices
+
+A new mandatory `ACCOUNT` field was added to the task-log upload pipeline —
+a short client/account code (e.g. `GT`, `JW`, `FD`), **max 4 characters**.
+If §5.2's task-upload UI is already in progress, this needs to be added to it.
+
+- [ ] **Bulk upload** (`POST /api/v1/tasks/import`): the CSV/XLSX file's
+      header row must now include an `ACCOUNT` column alongside the existing
+      five (full list in `backend-python/INVOICING_RULES.md` §1). Missing or
+      >4-character values reject the whole file/row with a 400, same as the
+      other required columns.
+- [ ] **Single entry** (`POST /api/v1/tasks`): body now requires an
+      `account: string` field (see the updated shape in §5.2 above).
+- [ ] `GET /api/v1/tasks/mine` rows now include `account` — worth showing
+      alongside `task_id` in whatever table/list renders task entries.
+- [ ] Generated invoices (`GET /api/v1/invoices/{id}` `items[]`, and the PDF
+      at `GET /api/v1/invoices/{id}/pdf`) now include `account` per line item.
+      No frontend action needed unless you're rendering `items[]` yourself
+      outside of just linking to the PDF — if so, add a narrow Account
+      column, it's short by design (initials, 4 chars worst case).
