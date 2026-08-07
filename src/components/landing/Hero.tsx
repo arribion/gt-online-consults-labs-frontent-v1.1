@@ -3,30 +3,34 @@ import {
   ArrowRight,
   BellRing,
   CheckCircle2,
-  Cloud,
-  CreditCard,
   FileText,
-  FolderTree,
-  Hash,
+  Globe,
   LayoutDashboard,
-  ListOrdered,
+  Lightbulb,
   ListTodo,
   Network,
-  PenLine,
   PlayCircle,
   Quote,
   Rocket,
   Search,
+  ShieldCheck,
   Sparkles,
   StickyNote,
   Target,
   Users,
-  Video,
-  Wallet,
-  Zap,
 } from "lucide-react";
 import { Reveal, Avatar, Stars } from "./ui";
 import { useCountUp } from "../../hooks/hooks";
+
+// image icons
+import openAI from "../../assets/icons/open-ai.png"
+import brex from "../../assets/icons/brex.png";
+import shopify from "../../assets/icons/shopfy.png";
+import deel from "../../assets/icons/deel.png";
+import remote from "../../assets/icons/remote.png";
+import sumsub from "../../assets/icons/sumsub.png";
+import github from "../../assets/icons/github.png";
+import canva from "../../assets/icons/canva.png";
 
 /* ================= dashboard mockup ================= */
 function DashboardMock() {
@@ -188,10 +192,10 @@ function QuoteRotator() {
   }, []);
   const q = quotes[i];
   return (
-    <div className="flex h-full flex-col justify-between rounded-2xl border border-line2/60 bg-panel/70 p-6">
+    <div className="flex h-full flex-col justify-between rounded-2xl border border-line2/60 bg-sky-500/20 p-6">
       <div>
         <span className="font-display text-4xl leading-none text-azure">
-          <Quote/>
+          <Quote color="white" />
         </span>
         <p key={i} className="quote-swap mt-1 text-sm leading-relaxed text-frost/90">
           {q.text}
@@ -222,22 +226,42 @@ function QuoteRotator() {
 
 /* ================= trusted-by wordmarks ================= */
 const brands = [
-  { icon: Hash, name: "Framer" },
-  { icon: StickyNote, name: "Notion" },
-  { icon: Hash, name: "Slack" },
-  { icon: Video, name: "Zoom" },
-  { icon: Wallet, name: "PayPal" },
-  { icon: Zap, name: "Zapier" },
-  { icon: CreditCard, name: "Stripe" },
-  { icon: Cloud, name: "Google Cloud" },
+  { icon: openAI, name: "" },
+  { icon: brex, name: "" },
+  { icon: shopify, name: "" },
+  { icon: deel, name: "" },
+  { icon: sumsub, name: "" },
+  { icon: remote, name: "" },
+  { icon: github, name: "" },
+  { icon: canva, name: "" },
 ];
 
 /* ================= values strip ================= */
 const values = [
-  { icon: PenLine, tone: "text-sky2", title: "Capture", lines: ["Jot anything in seconds.", "Text, voice, or paste."] },
-  { icon: FolderTree, tone: "text-[#4fd8c6]", title: "Organize", lines: ["AI tags and groups.", "Links every note."] },
-  { icon: ListOrdered, tone: "text-amber", title: "Prioritize", lines: ["Top 3 tasks daily,", "ranked by goal impact."] },
-  { icon: Rocket, tone: "text-[#7f9df5]", title: "Execute", lines: ["Reminders & checklists", "keep you moving."] },
+  {
+    icon: ShieldCheck,
+    tone: "text-sky2",
+    title: "INTEGRITY",
+    lines: ["Honest Communication.", "Transpirate Process."],
+  },
+  {
+    icon: Rocket,
+    tone: "text-[#4fd8c6]",
+    title: "EXECUTION",
+    lines: ["We deliver on Promise.", "Results that Matter."],
+  },
+  {
+    icon: Lightbulb,
+    tone: "text-amber",
+    title: "INOVATION",
+    lines: ["AI-first Thinking.", "Future Focused Solutions."],
+  },
+  {
+    icon: Globe,
+    tone: "text-[#7f9df5]",
+    title: "GLOBAL IMPACT",
+    lines: ["Connecting Talents.", "Creating Oppotunities."],
+  },
 ];
 
 /* ================= HERO ================= */
@@ -258,8 +282,9 @@ export default function Hero() {
               <span className="text-shimmer"> AI Oppotunities</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-mist sm:text-lg">
-              GT.onlineConsults.empowers exceptional technology talents, through global outsourcing partinership
-              built on integrity,execution and innovation.
+              GT.onlineConsults.empowers exceptional technology talents, through
+              global outsourcing partinership built on integrity,execution and
+              innovation.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <a
@@ -303,19 +328,25 @@ export default function Hero() {
         <div className="mt-24 grid gap-6 lg:mt-28 lg:grid-cols-[1.4fr_1fr]">
           <Reveal>
             <div className="grid h-full grid-cols-2 divide-line/60 rounded-2xl border border-line2/60 bg-panel/50 sm:grid-cols-4 sm:divide-x">
-              <Stat value={92} suffix="%" label="Increased Productivity" />
+              <Stat value={152} suffix="+" label="Talent Placed" />
               <Stat
-                value={4.5}
-                decimals={1}
-                suffix="M+"
-                label="Notes Organized"
+                value={40}
+                // decimals={1}
+                suffix="+"
+                label="Global Clinets"
               />
               <Stat value={100000} suffix="+" label="Founders Onboard" />
               <Stat
-                value={4.9}
+                value={12}
+                // decimals={1}
+                suffix="+"
+                label="Contries Served"
+              />
+              <Stat
+                value={98}
                 decimals={1}
-                suffix="/5"
-                label="Avg. Founder Rating"
+                suffix="%"
+                label="Client Sertisfaction"
               />
             </div>
           </Reveal>
@@ -334,15 +365,15 @@ export default function Hero() {
               <span
                 key={b.name}
                 className="flex items-center gap-2 text-sm font-bold text-mist/80 transition-colors hover:text-frost">
-                <b.icon className="h-4 w-4" />
-                {b.name}
+                 <img src={b.icon} alt="max-w-[1em]" />
+                {/* {b.name} */}
               </span>
             ))}
           </div>
         </Reveal>
 
         {/* ---- row D: values ---- */}
-        <Reveal className="mt-6 pb-20">
+        <Reveal className="mt-16 pb-20">
           <div className="grid gap-px overflow-hidden rounded-2xl border border-line/60 bg-line/40 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v) => (
               <div
