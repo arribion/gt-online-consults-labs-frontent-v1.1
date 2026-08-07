@@ -213,10 +213,11 @@ Several UI pages and widgets currently feature static mock data or UI chrome wit
 
 ## 4a. ⚠️ Backend Role-Model Changes (Action Required)
 
-The backend just implemented `backend-python/task-planning.md` P1 (authorization
-enforcement) with a finalized 3-tier role model: `TASKER`, `ADMIN`, `SUPERADMIN`.
-This is a breaking change for a few things the frontend currently does. None of
-the frontend code was touched as part of this — flagging it here instead.
+The backend has finalized its authorization model on a 3-tier role set —
+`TASKER`, `ADMIN`, `SUPERADMIN` — and enforces it server-side on every
+protected route. This is a breaking change for a few things the frontend
+currently does. None of the frontend code was touched as part of this —
+flagging it here instead.
 
 ### 1. `MANAGER` role is gone
 
@@ -284,7 +285,54 @@ data untouched. Taskers still see the project, now showing status
 
 ---
 
-## 4b. Reviewer Checklist & Discussion Points
+## 4b. 📚 Full API Reference Is Now Available — Don't Rely on This Doc Alone
+
+Everything above is a summary written by hand, which means it can drift out
+of date or miss a field. For the authoritative, always-current list of every
+endpoint, request/response shape, and enum, use one of these instead of
+waiting on the next `recommendations.md` update:
+
+### Option 1 — Static snapshot (no backend setup required)
+
+An exported `openapi.json` has been placed at `openapi.json` in this repo — the OpenAPI 3.1.0 schema for the live `backend-python` API surface
+(all `/api/v1/...` routes). You can:
+
+- Import it into Postman or Insomnia to get a ready-made, runnable request
+  collection instead of hand-building one.
+- Feed it to an OpenAPI codegen tool (e.g. `openapi-typescript`,
+  `openapi-generator`) to generate typed request/response interfaces —
+  this could remove most of the manual guesswork described in PR 3
+  (`Member`, `ProjectAssignment`, etc.) and pairs naturally with the
+  `src/services/` layer proposed in PR 1.
+
+It's a point-in-time snapshot, not a live feed — treat it as stale the
+moment a new backend change lands, until it's re-exported and re-dropped
+here.
+
+### Option 2 — Live interactive docs (requires running the backend)
+
+You can also clone and run `backend-python` yourself:
+
+```bash
+git clone git@github.com:gt-consults/gt-backend-fastapi.git
+cd gt-backend-fastapi
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+# configure .env.development (DB URL, JWT secret, etc.) — see the repo's README
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Once it's running, FastAPI serves interactive Swagger UI docs at
+`http://localhost:8000/docs` (and ReDoc at `/redoc`), generated straight
+from the running code — so it's always accurate, lets you fire real
+requests against a local database, and shows the exact role/auth
+requirement per route. This is the fastest way to answer "does this need
+SUPERADMIN or just ADMIN?" or "what does the response body actually look
+like?" without waiting on this doc.
+
+---
+
+## 4c. Reviewer Checklist & Discussion Points
 
 Please review the proposed structure and confirm:
 
