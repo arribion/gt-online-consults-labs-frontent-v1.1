@@ -75,9 +75,9 @@ function DashboardMock() {
         {/* main */}
         <div className="flex-1 p-4">
           <div className="flex items-center justify-between">
-            <p className="font-display text-xs font-bold text-frost">Today · Tue, Mar 4</p>
+            <p className="font-display text-xs font-bold text-frost">Today · Thur, Jun 6</p>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber/10 px-2.5 py-1 text-[10px] font-semibold text-amber">
-              <Sparkles className="h-3 w-3" /> 3 priorities detected
+              <Sparkles className="h-3 w-3" /> 3 Task priorities detected
             </span>
           </div>
 
@@ -101,7 +101,7 @@ function DashboardMock() {
             {[
               { t: "Send deck to Ari at Horizon VC", done: true },
               { t: "Review onboarding copy draft", done: true },
-              { t: "Prep metrics for board call", done: false },
+              { t: "Prep metrics for ai tasking", done: false },
             ].map((task) => (
               <div key={task.t} className="flex items-center gap-2 text-[11px]">
                 <CheckCircle2 className={`h-3.5 w-3.5 ${task.done ? "text-[#4fd8c6]" : "text-line2"}`} />
@@ -335,7 +335,6 @@ export default function Hero() {
                 suffix="+"
                 label="Global Clinets"
               />
-              <Stat value={100000} suffix="+" label="Founders Onboard" />
               <Stat
                 value={12}
                 // decimals={1}
@@ -360,12 +359,12 @@ export default function Hero() {
           <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-sky2/80">
             Trusted by founders building at
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 rounded-2xl border border-line/60 bg-deep/50 px-6 py-5">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 rounded border border-line/60 bg-deep/50 px-6 py-5">
             {brands.map((b) => (
               <span
                 key={b.name}
                 className="flex items-center gap-2 text-sm font-bold text-mist/80 transition-colors hover:text-frost">
-                 <img src={b.icon} alt="max-w-[1em]" />
+                 <img src={b.icon} alt="max-w-[0.5em] w-4 h-4" />
                 {/* {b.name} */}
               </span>
             ))}

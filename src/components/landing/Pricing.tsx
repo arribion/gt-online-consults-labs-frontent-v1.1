@@ -53,7 +53,7 @@ export default function Pricing() {
     <section id="pricing" className="scroll-mt-24 py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <SectionTag icon={<Crown className="h-3.5 w-3.5" />}>Pricing</SectionTag>
+          <SectionTag icon={<Crown className="h-3.5 w-3.5" />}>Pricing for Companies</SectionTag>
           <h2 className="mt-5 font-display text-3xl font-extrabold tracking-tight text-frost sm:text-4xl">
             Start Smart. <span className="text-sky2">Scale Fast.</span>
           </h2>

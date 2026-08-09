@@ -1,10 +1,16 @@
-import { ArrowRight, AtSign, Bug, Globe, Send, Sparkles } from "lucide-react";
+import { ArrowRight, AtSign, Bug, Globe, Rss, Send } from "lucide-react";
 import { Logo, Reveal } from "./ui";
 
 const cols = [
-  { title: "Product", links: ["Features", "Pricing", "Integrations", "Changelog", "Roadmap"] },
+  {
+    title: "Product",
+    links: ["Features", "Pricing", "Integrations", "Changelog", "Roadmap"],
+  },
   { title: "Company", links: ["About", "Careers", "Blog", "Press", "Contact"] },
-  { title: "Resources", links: ["Help Center", "API Docs", "Community", "Status", "Security"] },
+  {
+    title: "Resources",
+    links: ["Help Center", "API Docs", "Community", "Status", "Security"],
+  },
 ];
 
 export default function Footer() {
@@ -23,10 +29,10 @@ export default function Footer() {
             />
             <div className="relative">
               <span className="inline-flex items-center gap-2 rounded-full border border-line2/70 bg-deep/60 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-sky2">
-                <Sparkles className="h-3.5 w-3.5" /> Start free today
+                <Rss className="h-3.5 w-3.5" /> Start free today
               </span>
               <h2 className="mx-auto mt-5 max-w-2xl font-display text-3xl font-extrabold tracking-tight text-frost sm:text-4xl">
-                Ready to Let AI Run Your Busywork?
+                Ready to Let GT onlineconsult help you utilize your potential?
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-mist">
                 Join 100,000+ founders who stopped organizing and started
@@ -36,13 +42,13 @@ export default function Footer() {
                 <a
                   href="#top"
                   className="group inline-flex items-center gap-2.5 rounded-xl bg-linear-to-r from-azure to-[#1873e0] px-7 py-3.5 text-sm font-bold text-white shadow-[0_16px_44px_-12px_rgba(47,157,255,0.85)] transition-all hover:-translate-y-0.5">
-                  Get Started Free
+                  Join our Network Talents
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </a>
                 <a
                   href="#how"
                   className="inline-flex items-center gap-2 rounded-xl border border-line2 bg-deep/50 px-7 py-3.5 text-sm font-bold text-frost transition-colors hover:border-sky2/60">
-                  Book a Demo
+                  Hire Trainers
                 </a>
               </div>
             </div>
@@ -56,8 +62,7 @@ export default function Footer() {
           <div>
             <Logo />
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-mist">
-              The AI workspace that turns messy notes and tasks into a clear
-              daily plan — built for startup founders who'd rather be building.
+              footer kasmall about one or two sentences
             </p>
             <div className="mt-6 flex gap-3">
               {[AtSign, Globe, Send].map((Icon, i) => (
@@ -98,12 +103,12 @@ export default function Footer() {
               &copy; {new Date().getFullYear()} GT. All Rights Reserved.
             </p>
             <p>
-              Designed and Developed by: 
+              Designed and Developed by:{" "}
               <a
                 target="_blank"
                 href="www.arribion.com"
                 className="font-semibold text-mist transition-colors hover:text-sky2">
-                 Arribion Technologies
+                - Arribion Technologies
               </a>
             </p>
           </div>

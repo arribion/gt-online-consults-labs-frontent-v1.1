@@ -3,32 +3,32 @@ import { Avatar, Reveal, SectionTag, Stars } from "./ui";
 
 const testimonials = [
   {
-    text: "StartNotesAI is the smartest tool I've used all year. I just type in my messy thoughts, and it somehow turns them into a Monday plan. Magic.",
+    text: "Hapa its for demmy reviews",
     name: "Lauren K.",
     role: "Fintech Founder",
   },
   {
-    text: "I replaced 3 apps with this one. No joke — it handles my tasks, notes, even reminds me of things I forgot I wrote.",
+    text: "Hapa its for demmy reviews. One sentence or two each",
     name: "Brian G.",
     role: "Healthtech CEO",
   },
   {
-    text: "The daily AI summaries help me refocus every morning. I wish I had this when I was just starting out.",
+    text: "I wish I had this when I was just starting out.",
     name: "Alex M.",
     role: "VC Founder",
   },
   {
-    text: "My productivity shot up since using StartNotesAI. It's like having a chief of staff who actually understands me.",
+    text: " It's like having a chief of staff who actually understands me.",
     name: "Dana S.",
     role: "Edtech Co-Founder",
   },
   {
-    text: "This is the only tool I open in the morning now. Everything's here. Notes, tasks, what I need to do next — all clean and ready.",
+    text: "Everything's here. Notes, tasks, what I need to do next  all clean and ready.",
     name: "Chris P.",
-    role: "SaaS Founder",
+    role: "SaaS Found"
   },
   {
-    text: "It's not just about taking notes. This app actually thinks and helps me get things done — faster than I ever could alone.",
+    text: "This app actually thinks and helps me get things done  faster than I ever could alone.",
     name: "Maya R.",
     role: "Startup Operator",
   },
@@ -44,7 +44,7 @@ export default function Testimonials() {
             What Founders Are <span className="text-sky2">Saying</span>
           </h2>
           <p className="mt-4 text-mist">
-            StartNotesAI is helping startup leaders stay focused, ship faster, and feel in control.
+            gt online consults is helping startup leaders stay focused, ship faster, and feel in control.
           </p>
         </Reveal>
 

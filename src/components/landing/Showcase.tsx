@@ -4,10 +4,11 @@ import {
   CheckCircle2,
   Lightbulb,
   ListTodo,
+  LogIn,
   MessageSquareText,
-  PenLine,
+  NotepadText,
+  ScanFace,
   Search,
-  Sparkles,
   Tags,
   Wand2,
 } from "lucide-react";
@@ -63,7 +64,7 @@ function DetailRows() {
             </h3>
             <p className="mt-4 leading-relaxed text-mist">
               You don't need to figure out what to do next — we'll tell you. The AI analyzes your
-              notes and tasks to suggest your top 3 daily priorities, follow-ups, and overdue tasks
+              Tasks and suggest your top 3 priorities, follow-ups, and overdue tasks
               based on your goals.
             </p>
             <ul className="mt-6 space-y-3">
@@ -93,15 +94,13 @@ function DetailRows() {
               Think Once. <span className="text-sky2">Take Action Forever.</span>
             </h3>
             <p className="mt-4 leading-relaxed text-mist">
-              Make one note and get a whole plan. Our note-to-action engine turns a single brain
-              dump into structured tasks, timelines, and even follow-up reminders — saving you hours
-              each week.
+              get description 
             </p>
             <a
               href="#pricing"
               className="group mt-7 inline-flex items-center gap-2 text-sm font-bold text-sky2 hover:text-ice"
             >
-              Try the note-to-action engine
+              get started as trainer
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
           </Reveal>
@@ -111,25 +110,25 @@ function DetailRows() {
   );
 }
 
-/* ================= how it works ================= */
+/* ================= the process ================= */
 const steps = [
   {
     n: "1",
-    icon: PenLine,
-    title: "Capture Your Thoughts",
-    body: "Drop in notes, voice memos, or meeting summaries — in pure text, however you think best.",
+    icon: LogIn,
+    title: "process 1",
+    body: "Get me the description i will add hapa",
   },
   {
     n: "2",
-    icon: Wand2,
-    title: "Let AI Organize & Prioritize",
-    body: "StartNotesAI automatically identifies tasks, groups them by context, and gives you a smart daily plan.",
+    icon: ScanFace,
+    title: "process 2",
+    body: "Get me the description i will add hapa. i can be length up to two sentences",
   },
   {
     n: "3",
-    icon: Sparkles,
-    title: "Take Action With Clarity",
-    body: "Your dashboard shows exactly what to do next, with smart reminders and progress tracking baked in.",
+    icon: NotepadText,
+    title: "process 3",
+    body: "Get me the description i will add hapa",
   },
 ];
 
@@ -138,7 +137,7 @@ function HowItWorks() {
     <section id="how" className="scroll-mt-24 py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <SectionTag icon={<Lightbulb className="h-3.5 w-3.5" />}>How it works</SectionTag>
+          <SectionTag icon={<Lightbulb className="h-3.5 w-3.5" />}>The process</SectionTag>
           <h2 className="mt-5 font-display text-3xl font-extrabold tracking-tight text-frost sm:text-4xl">
             It's That Simple. Just Write, and Let AI Do the Rest.
           </h2>

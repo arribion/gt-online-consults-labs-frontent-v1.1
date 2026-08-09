@@ -8,7 +8,7 @@ import {
   Hash,
   Mail,
   Network,
-  Sparkles,
+  ChartNoAxesCombined,
   StickyNote,
   Target,
 } from "lucide-react";
@@ -68,7 +68,7 @@ function LinkGraph() {
       </svg>
       {/* center node */}
       <span className="anim-pulse-dot absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl bg-linear-to-br from-azure to-[#1257b8] text-white shadow-lg">
-        <Sparkles className="h-5 w-5" />
+        <ChartNoAxesCombined className="h-5 w-5" />
       </span>
       {nodes.map((n, i) => (
         <span
@@ -87,12 +87,12 @@ export default function Benefits() {
     <section id="features" className="scroll-mt-24 py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <SectionTag icon={<Sparkles className="h-3.5 w-3.5" />}>
+          <SectionTag icon={<ChartNoAxesCombined className="h-3.5 w-3.5" />}>
             Benefits
           </SectionTag>
           <h2 className="mt-5 font-display text-3xl font-extrabold tracking-tight text-frost sm:text-4xl">
             Everything You Need to Stay Organized{" "}
-            <span className="text-sky2">Without Lifting a Finger</span>
+            <span className="text-sky2">Without Lifting a Finger at GT labs</span>
           </h2>
           <p className="mt-4 text-mist">
             Built for the fast-paced life of startup founders, these AI-powered
@@ -101,7 +101,7 @@ export default function Benefits() {
         </Reveal>
 
         <div className="mt-14 grid gap-5 lg:grid-cols-3">
-          {/* Note-to-Task AI — wide */}
+          {/* Targeted Skills */}
           <Reveal className="lg:col-span-2">
             <div className="card-hover h-full rounded-2xl border border-line2/60 bg-panel/60 p-7">
               <div className="flex items-start gap-4">
@@ -110,12 +110,11 @@ export default function Benefits() {
                 </span>
                 <div>
                   <h3 className="font-display text-lg font-bold text-frost">
-                    Note-to-Task AI
+                    Targeted Skills
                   </h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-mist">
-                    Automatically convert meeting notes, ideas, or brain dumps
-                    into actionable to-dos with AI — no manual reformatting,
-                    ever.
+                    Pinpoints specific weaknesses in a workforce and delivers
+                    instant, customized lessons to fix them.
                   </p>
                 </div>
               </div>
@@ -123,7 +122,7 @@ export default function Benefits() {
               <div className="mt-6 grid items-center gap-3 sm:grid-cols-[1fr_auto_1fr]">
                 <div className="rounded-xl border border-line/70 bg-deep/70 p-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-dim">
-                    Raw note
+                    Tasks
                   </p>
                   <div className="mt-2 space-y-1.5">
                     <div className="h-1.5 w-full rounded bg-line" />
@@ -137,12 +136,12 @@ export default function Benefits() {
                 </span>
                 <div className="space-y-2 rounded-xl border border-[#22b8a6]/30 bg-[#22b8a6]/5 p-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-[#4fd8c6]">
-                    AI tasks
+                    Solutions
                   </p>
                   {[
-                    "Email Sarah re: pricing",
-                    "Draft v2 of deck",
-                    "Book user interviews",
+                    "gt onlineconsult lab solution 1",
+                    "gt onlineconsult lab solution 2",
+                    "gt onlineconsult lab solution 3",
                   ].map((t) => (
                     <div
                       key={t}
@@ -156,19 +155,18 @@ export default function Benefits() {
             </div>
           </Reveal>
 
-          {/* Context-Aware Linking — tall */}
+          {/* Ethical Awareness Linking — tall */}
           <Reveal delay={120} className="lg:row-span-2">
             <div className="card-hover flex h-full flex-col rounded-2xl border border-line2/60 bg-panel/60 p-7">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#7f9df5]/15 text-[#9db4ff]">
                 <Network className="h-5 w-5" />
               </span>
               <h3 className="mt-4 font-display text-lg font-bold text-frost">
-                Context-Aware Linking
+                Ethical Awareness
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-mist">
-                AI detects and links related notes and tasks across your
-                workspace, keeping everything connected — meetings, docs, goals,
-                and follow-ups.
+                Integrates governance rules to ensure models and users act
+                responsibly and fairly
               </p>
               <LinkGraph />
             </div>
@@ -208,18 +206,18 @@ export default function Benefits() {
             </div>
           </Reveal>
 
-          {/* Goal-Oriented Task Planning */}
+          {/* Scalability */}
           <Reveal delay={140}>
             <div className="card-hover h-full rounded-2xl border border-line2/60 bg-panel/60 p-7">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#22b8a6]/15 text-[#4fd8c6]">
                 <Target className="h-5 w-5" />
               </span>
               <h3 className="mt-4 font-display text-lg font-bold text-frost">
-                Goal-Oriented Task Planning
+                Scalability
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-mist">
-                Set your startup goals, and let AI break them down into
-                milestones and daily actions that actually move the needle.
+                Reaches large groups of workers or processes massive datasets
+                all at once without losing quality.
               </p>
               <div className="mt-5">
                 <div className="flex justify-between text-[11px] font-semibold">
