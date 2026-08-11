@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import login_img from "../../assets/images/login.jpg";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -57,7 +58,8 @@ const Login = () => {
   const btnStyle = isLoading ? { color: "gray" } : undefined;
 
   return (
-    <section className="min-h-[80vh] flex justify-center">
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center *:max-h-screen">
+      <img src={login_img} alt="" className="max-h-full max-w-[40em]" />
       <form
         onSubmit={handleSubmit}
         className="shadow-card md:w-md mt-[5em] w-fit p-4 rounded max-h-fit">

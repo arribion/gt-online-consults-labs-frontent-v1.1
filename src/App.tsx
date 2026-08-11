@@ -34,6 +34,7 @@ import ContactUs from "./routes/landing/ContactUs";
 import Note from "./components/client/Note";
 
 import Landing from "./routes/landing/Landing";
+import Talents from "./routes/landing/Talents";
 
 const App = () => {
   return (
@@ -47,6 +48,7 @@ const App = () => {
         {/* Public Main Routes */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Landing />} />
+          <Route path="in-demand" element={<Talents />} />
           <Route path="about" element={<About />} />
           <Route path="contact-us" element={<ContactUs />} />
         </Route>

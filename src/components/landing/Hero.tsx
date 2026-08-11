@@ -130,12 +130,16 @@ function FeaturePanel() {
   return (
     <div className="rounded-2xl border border-line2/70 bg-panel/90 p-5 shadow-[0_24px_70px_-30px_rgba(10,60,140,0.8)] backdrop-blur">
       <div className="flex items-center justify-between">
-        <p className="font-display text-sm font-bold text-sky2">In-Demand Talents</p>
+        <p className="font-display text-sm font-bold text-sky2">
+          In-Demand Talents
+        </p>
         <Users className="h-4 w-4 text-mist" />
       </div>
       <ul className="mt-4 space-y-3">
         {aiFeatures.map((f) => (
-          <li key={f.label} className="group flex items-center gap-3 text-[13px] font-medium text-frost/90">
+          <li
+            key={f.label}
+            className="group flex items-center gap-3 text-[13px] font-medium text-frost/90">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-line2/60 bg-ink2 text-sky2 transition-colors group-hover:border-azure/60 group-hover:bg-azure/10">
               <f.icon className="h-4 w-4" />
             </span>
@@ -143,7 +147,9 @@ function FeaturePanel() {
           </li>
         ))}
       </ul>
-      <a href="#features" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-sky2 hover:text-ice">
+      <a
+        href="/in-demand"
+        className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-sky2 hover:text-ice">
         Explore all Talents <ArrowRight className="h-3.5 w-3.5" />
       </a>
     </div>
