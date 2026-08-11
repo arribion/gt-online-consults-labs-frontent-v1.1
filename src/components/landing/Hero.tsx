@@ -21,16 +21,7 @@ import {
 } from "lucide-react";
 import { Reveal, Avatar, Stars } from "./ui";
 import { useCountUp } from "../../hooks/hooks";
-
-// image icons
-import openAI from "../../assets/icons/open-ai.png"
-import brex from "../../assets/icons/brex.png";
-import shopify from "../../assets/icons/shopfy.png";
-import deel from "../../assets/icons/deel.png";
-import remote from "../../assets/icons/remote.png";
-import sumsub from "../../assets/icons/sumsub.png";
-import github from "../../assets/icons/github.png";
-import canva from "../../assets/icons/canva.png";
+import TrustedByCarousel from "./TrustedCarosel";
 
 /* ================= dashboard mockup ================= */
 function DashboardMock() {
@@ -230,17 +221,6 @@ function QuoteRotator() {
   );
 }
 
-/* ================= trusted-by wordmarks ================= */
-const brands = [
-  { icon: openAI, name: "" },
-  { icon: brex, name: "" },
-  { icon: shopify, name: "" },
-  { icon: deel, name: "" },
-  { icon: sumsub, name: "" },
-  { icon: remote, name: "" },
-  { icon: github, name: "" },
-  { icon: canva, name: "" },
-];
 
 /* ================= values strip ================= */
 const values = [
@@ -361,21 +341,7 @@ export default function Hero() {
         </div>
 
         {/* ---- row C: trusted by ---- */}
-        <Reveal className="mt-16">
-          <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-sky2/80">
-            Trusted by founders building at
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 rounded border border-line/60 bg-deep/50 px-6 py-5">
-            {brands.map((b) => (
-              <span
-                key={b.name}
-                className="flex items-center gap-2 text-sm font-bold text-mist/80 transition-colors hover:text-frost">
-                 <img src={b.icon} alt="max-w-[0.5em] w-4 h-4" />
-                {/* {b.name} */}
-              </span>
-            ))}
-          </div>
-        </Reveal>
+         <TrustedByCarousel />
 
         {/* ---- row D: values ---- */}
         <Reveal className="mt-16 pb-20">
