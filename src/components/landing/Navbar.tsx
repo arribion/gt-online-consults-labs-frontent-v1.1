@@ -48,7 +48,7 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <a href="#pricing" className="text-sm font-semibold text-mist transition-colors hover:text-frost">
+          <a href="#pricing" className="text-sm border border-slate-500 font-semibold text-mist transition-colors hover:text-frost">
             Hire Talents
           </a>
           <a
