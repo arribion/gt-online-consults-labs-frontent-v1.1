@@ -1,1 +1,1 @@
-export type MemberRole = "TASKER" | "MANAGER" | "ADMIN";
+export type MemberRole = "SUPERADMIN" | "ADMIN" | "TASKER"

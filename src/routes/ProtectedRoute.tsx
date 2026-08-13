@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { Oval } from "react-loader-spinner";
 
 type ProtectedRouteProps = {
-  allowedRoles?: ("TASKER" | "ADMIN")[];
+  allowedRoles?: ("SUPERADMIN" | "ADMIN" | "TASKER")[];
 };
 
 export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
@@ -52,7 +52,7 @@ export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     // Redirect to  respective dashboards if they land on the wrong route
     return (
       <Navigate
-        to={user.role === "ADMIN" ? "/admin" : "/client/dashboard"}
+        to={user.role === "SUPERADMIN" ? "/admin" : "/client/dashboard"}
         replace
       />
     );

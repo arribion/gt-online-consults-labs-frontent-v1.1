@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 type User = {
-  role: "TASKER" | "ADMIN";
+  role: "SUPERADMIN" | "ADMIN" | "TASKER";
   email: string
 } | null;
 

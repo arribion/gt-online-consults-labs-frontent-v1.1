@@ -15,7 +15,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isLoggedIn && user) {
-      if (user.role === "ADMIN") {
+      if (user.role === "SUPERADMIN") {
         navigate("/admin", { replace: true });
       } else {
         navigate("/client/dashboard", { replace: true });

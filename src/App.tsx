@@ -74,7 +74,7 @@ const App = () => {
         </Route>
 
         {/* Manager Protected Routes */}
-        {/* <Route  element={<ProtectedRoute allowedRoles={["MANAGER"]} />} > */}
+        {/* <Route  element={<ProtectedRoute allowedRoles={["ADMIN"]} />} > */}
         {/* <Route index element={<ManagerDashboard />} /> */}
         {/* <Route path="tasks" element={<Task />} /> */}
         {/* <Route path="/client/payments" element={<Payments />} /> */}
@@ -86,7 +86,7 @@ const App = () => {
         {/* </Route> */}
 
         {/* Admin Protected Routes */}
-        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+        <Route element={<ProtectedRoute allowedRoles={["SUPERADMIN"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="tasks" element={<Task />} />
