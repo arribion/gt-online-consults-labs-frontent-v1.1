@@ -97,17 +97,7 @@ export function Navbar() {
       {mobileOpen && (
         <div className="border-t border-border bg-card px-4 py-4 md:hidden">
           <div className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start">
-                  {link.label}
-                </Button>
-              </Link>
-            ))}
-
+           
             {/* Conditional authentication mobile view */}
             {!user ? (
               <>
