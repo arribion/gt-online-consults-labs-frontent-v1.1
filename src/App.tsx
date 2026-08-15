@@ -35,6 +35,7 @@ import Note from "./components/client/Note";
 
 import Landing from "./routes/landing/Landing";
 import Talents from "./routes/landing/Talents";
+import Register from "./routes/auth/Register";
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const App = () => {
         {/* Public Auth Layout */}
         <Route element={<AuthLayout />}>
           <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
         </Route>
 
         {/* Public Main Routes */}

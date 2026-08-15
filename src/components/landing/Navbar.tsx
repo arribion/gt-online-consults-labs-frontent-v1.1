@@ -72,7 +72,7 @@ export default function Navbar() {
         {!user ? (
           <div className="hidden items-center gap-3 lg:flex">
             <a
-              href="#pricing"
+              href="/register"
               className="text-sm border border-slate-500 font-semibold text-mist transition-colors hover:text-frost px-3 py-1.5 rounded-md">
               Hire Talents
             </a>
@@ -84,7 +84,9 @@ export default function Navbar() {
             </Link>
           </div>
         ) : (
-          <Link to={dashboardPath} className="hidden lg:flex items-center gap-3 ml-2">
+          <Link
+            to={dashboardPath}
+            className="hidden lg:flex items-center gap-3 ml-2">
             <button className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white font-semibold text-sm shadow-sm transition-transform hover:scale-105">
               {userInitial}
             </button>
