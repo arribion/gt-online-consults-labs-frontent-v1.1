@@ -6,7 +6,7 @@ body{
 main,
 nav {
   scrollbar-width: thin;
-  scrollbar-color: #3b82f6 transparent; /* blue scrollbar with a transparent track */
+  scrollbar-color: #071832  transparent; /* blue scrollbar with a transparent track */
 }
 
 /* Webkit Engine Optimization (Chrome, Safari, Edge, Opera) */

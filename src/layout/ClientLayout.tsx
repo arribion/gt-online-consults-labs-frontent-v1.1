@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import clientLinks from "../constants/ClientLinks";
+import  clientLinks  from "../constants/client-Links";
 // sidebar
 import gt_logo from "../assets/gt-logo.png";
 import { Link, NavLink } from "react-router-dom";
@@ -67,7 +67,7 @@ const ClientLayout: React.FC = () => {
       {/* Sidebar - Edge Scrollable Panel */}
       <aside
         ref={sidebarRef}
-        className={`gradient-primary fixed bottom-0 top-0 z-50 flex w-64 flex-col text-slate-200 transition-transform duration-300 lg:translate-x-0 ${
+        className={`bg-[#071832]  fixed bottom-0 top-0 z-50 flex w-64 flex-col text-slate-200 transition-transform duration-300 lg:translate-x-0 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}>
         {/* Branding header: Keeps persistent spacing */}

@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 // sidebar
 import { Link, NavLink } from "react-router-dom";
 import gt_logo from "../assets/gt-logo.png";
-import AdminsideBarLinks from "../constants/adminLinks"
+import AdminsideBarLinks from "../constants/admin-Links"
 // HEADER
 import { Bell, LogOut, User, Menu, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
@@ -68,14 +68,14 @@ const AdminLayout = () => {
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`gradient-primary fixed bottom-0 top-0 z-50 flex w-64 flex-col shadow-card text-slate-200 transition-transform duration-300 lg:translate-x-0 ${
+        className={`bg-[#071832] fixed bottom-0 top-0 z-50 flex w-64 flex-col shadow-card text-slate-200 transition-transform duration-300 lg:translate-x-0 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}>
         {/* Branding header: Padding on the sides, but not wrapping the container scroll area */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <Link to="/" className="flex items-center gap-2.5">
             <img src={gt_logo} alt="GT-ONLINE" className="max-w-[2em]" />
-            <h1 className="text-slate-50 text-[12px] font-semibold">
+            <h1 className="text-slate-50 font-bold">
               GT-ONLINE
             </h1>
           </Link>
@@ -126,7 +126,7 @@ const AdminLayout = () => {
             </button>
             <div>
               <h1 className="text-xl font-bold text-sky-500 sm:text-2xl">
-                Admin Dashboard
+                Super-Admin Dashboard
               </h1>
               <p className="hidden text-sm text-gray-500 sm:block">
                 Welcome back, manage your projects efficiently.
