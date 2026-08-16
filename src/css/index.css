@@ -3,10 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
-body{
-  scrollbar-width: thin;
-  scrollbar-color: blue;
-}
+
 
 @custom-variant dark (&:is(.dark *));
 

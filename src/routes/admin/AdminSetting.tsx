@@ -1,7 +1,5 @@
 import { useState } from "react";
-import {
-  Settings,
-} from "lucide-react";
+import { Settings } from "lucide-react";
 import GeneralSetting from "../../components/admin/GeneralSetting";
 import AccountSetting from "../../components/admin/AccountSetting";
 
@@ -102,12 +100,10 @@ const AdminSetting = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-
         {/*  GENERAL SETTINGS  */}
         <GeneralSetting />
         {/* ACCOUNT SETTINGS  */}
         <AccountSetting />
-        
       </form>
     </div>
   );

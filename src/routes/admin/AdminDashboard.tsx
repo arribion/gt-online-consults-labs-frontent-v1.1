@@ -222,13 +222,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="mb-8">
-        <h1 className="text-green-700">Dashboard/</h1>
-        <p className="mb-2 text-gray-600">
-          Overview of members, projects, payments, and pending balances.
-        </p>
-      </div>
-
       {/* Parent grid: ensure items align to start so columns don't stretch */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left column: stats + chart */}

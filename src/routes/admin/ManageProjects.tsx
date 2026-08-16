@@ -98,7 +98,6 @@ const ManageProjects = () => {
     }
   };
 
-
   const closeModal = () => {
     setShowProjectAddForm(false);
     setSelectedProject(null);

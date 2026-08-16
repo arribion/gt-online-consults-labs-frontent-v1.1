@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import ResourceTable from "../../components/admin/ResourceTable";
 import ResourcesUploadForm from "../../components/admin/ResourceUploadForm";
 import { Plus } from "lucide-react";
