@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, LayoutDashboard, LogIn, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { Logo } from "./ui";
-import { useAuth } from "../../hooks/useAuth";
-import { HOME_FOR_ROLE } from "../../constants/navigation";
 
 const links = [
   { label: "Home", href: "#features" },
@@ -18,10 +15,6 @@ const links = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  // Someone already signed in gets sent straight to their workspace rather
-  // than through the login form again.
-  const { isLoggedIn, role } = useAuth();
-  const workspace = role ? HOME_FOR_ROLE[role] : "/login";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -56,33 +49,13 @@ export default function Navbar() {
           <a href="#pricing" className="text-sm font-semibold text-mist transition-colors hover:text-frost">
             Hire Talents
           </a>
-          {isLoggedIn ? (
-            <Link
-              to={workspace}
-              className="group inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-azure to-[#1873e0] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgba(47,157,255,0.7)] transition-transform hover:-translate-y-0.5"
-            >
-              <LayoutDashboard className="h-3.5 w-3.5" />
-              My workspace
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-line2/70 px-4 py-2 text-sm font-semibold text-frost transition-colors hover:border-azure/60 hover:text-sky2"
-              >
-                <LogIn className="h-3.5 w-3.5" />
-                Sign in
-              </Link>
-              <a
-                href="#pricing"
-                className="group inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-azure to-[#1873e0] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgba(47,157,255,0.7)] transition-transform hover:-translate-y-0.5"
-              >
-                Join Talent Network
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </a>
-            </>
-          )}
+          <a
+            href="#pricing"
+            className="group inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-azure to-[#1873e0] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgba(47,157,255,0.7)] transition-transform hover:-translate-y-0.5"
+          >
+            Join Talent Network
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </a>
         </div>
 
         <button
@@ -111,27 +84,12 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
-          <Link
-            to={workspace}
-            onClick={() => setOpen(false)}
-            className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg border border-line2/70 px-4 py-2.5 text-sm font-semibold text-frost"
-          >
-            {isLoggedIn ? (
-              <>
-                <LayoutDashboard className="h-4 w-4" /> My workspace
-              </>
-            ) : (
-              <>
-                <LogIn className="h-4 w-4" /> Sign in
-              </>
-            )}
-          </Link>
           <a
             href="#pricing"
             onClick={() => setOpen(false)}
             className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-azure px-4 py-2.5 text-sm font-semibold text-white"
           >
-            Join Talent Network <ArrowRight className="h-4 w-4" />
+            Sign up free <ArrowRight className="h-4 w-4" />
           </a>
         </nav>
       </div>

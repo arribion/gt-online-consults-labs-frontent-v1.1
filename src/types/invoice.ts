@@ -53,10 +53,54 @@ export type InvoiceGenerateRequest = {
   period_start: string;
   period_end: string;
   invoice_number?: string;
+  /**
+   * Also bill never-invoiced work dated before the period — typically a task
+   * that was under dispute when its own period was billed and has since
+   * resolved. Defaults to true server-side.
+   */
+  include_carryover?: boolean;
   /** Admin-only. A TASKER sending any of the three below gets a 403. */
   tasker_id?: string;
   rate?: number;
   payment_rate?: number;
+};
+
+export type BulkInvoiceGenerateRequest = {
+  period_start: string;
+  period_end: string;
+  /** Omit for every non-deactivated project / every assigned tasker. */
+  project_ids?: string[];
+  tasker_ids?: string[];
+  include_carryover?: boolean;
+  /** Report what would happen without writing anything. */
+  dry_run?: boolean;
+};
+
+/** One tasker x project pair considered by a bulk run. */
+export type BulkInvoiceLine = {
+  project_id: string;
+  project_name: string;
+  tasker_id: string;
+  tasker_name: string;
+  generated: boolean;
+  reason: string | null;
+  invoice_id: string | null;
+  external_id: string | null;
+  billable_tasks: number;
+  billable_minutes: number;
+  /** Billed here but dated before period_start — resolved-since-last-time work. */
+  carried_over: number;
+  total: number;
+};
+
+export type BulkInvoiceResult = {
+  dry_run: boolean;
+  period_start: string;
+  period_end: string;
+  generated_count: number;
+  skipped_count: number;
+  total_value: number;
+  lines: BulkInvoiceLine[];
 };
 
 export type InvoiceFilters = {
@@ -68,3 +112,13 @@ export type InvoiceFilters = {
 /** Total billable minutes on an invoice, from its frozen line items. */
 export const invoiceBilledMinutes = (invoice: Invoice): number =>
   (invoice.items ?? []).reduce((sum, item) => sum + item.paid_minutes, 0);
+
+/**
+ * Line items dated before the invoice period — work that only became billable
+ * after its own period had already been invoiced (a dispute resolving late is
+ * the usual cause). Derived from the frozen items, so no extra field is needed.
+ */
+export const invoiceCarryOverItems = (invoice: Invoice): InvoiceItem[] => {
+  if (!invoice.period_start) return [];
+  return (invoice.items ?? []).filter((item) => item.task_date < invoice.period_start!);
+};

@@ -20,6 +20,7 @@ import { formatCurrency, formatDate, formatMinutes, minutesToHours } from "@/lib
 import {
   INVOICE_STATUSES,
   invoiceBilledMinutes,
+  invoiceCarryOverItems,
   type Invoice,
   type InvoiceItem,
   type InvoiceStatus,
@@ -138,6 +139,18 @@ export default function InvoiceDetail() {
                     invoiceBilledMinutes(data),
                   )} billable.`}
                 />
+
+                {invoiceCarryOverItems(data).length > 0 && (
+                  <p className="mt-3 rounded-lg border border-azure/40 bg-azure/10 px-3 py-2.5 text-sm text-mist">
+                    <span className="font-semibold text-frost">
+                      {invoiceCarryOverItems(data).length} task
+                      {invoiceCarryOverItems(data).length === 1 ? "" : "s"} carried over
+                    </span>{" "}
+                    from before {formatDate(data.period_start)}. These were held back when their own
+                    period was billed — usually under dispute at the time — and became billable
+                    afterwards, so they are settled here.
+                  </p>
+                )}
                 <div className="mt-4">
                   <DataTable
                     rows={data.items ?? []}

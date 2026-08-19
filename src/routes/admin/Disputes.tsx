@@ -21,7 +21,8 @@ import { disputesService } from "@/services";
 import { formatDate, truncate } from "@/lib/format";
 import {
   DISPUTE_STATUSES,
-  disputeDaysRemaining,
+  disputeCountdown,
+  disputeUrgency,
   type Dispute,
   type DisputeStatus,
 } from "@/types";
@@ -72,7 +73,7 @@ export default function AdminDisputes() {
       resolved: data.filter((dispute) => dispute.status === "RESOLVED").length,
       forfeited: data.filter((dispute) => dispute.status === "FORFEITED").length,
       expiring: data.filter(
-        (dispute) => dispute.status === "PENDING" && disputeDaysRemaining(dispute.raised_at) <= 2,
+        (dispute) => dispute.status === "PENDING" && dispute.days_remaining <= 2,
       ).length,
     }),
     [data],
@@ -140,7 +141,7 @@ export default function AdminDisputes() {
       header: "Time left",
       align: "right",
       sortValue: (dispute) =>
-        dispute.status === "PENDING" ? disputeDaysRemaining(dispute.raised_at) : 999,
+        dispute.status === "PENDING" ? dispute.hours_remaining : 1_000_000,
       cell: (dispute) => {
         if (dispute.status !== "PENDING") {
           return (
@@ -149,12 +150,14 @@ export default function AdminDisputes() {
             </span>
           );
         }
-        const days = disputeDaysRemaining(dispute.raised_at);
+        const urgency = disputeUrgency(dispute);
         return (
           <span
-            className={`text-xs font-semibold ${days <= 2 ? "text-bad" : "text-warn"}`}
+            className={`whitespace-nowrap text-xs font-semibold ${
+              urgency === "calm" ? "text-warn" : "text-bad"
+            }`}
           >
-            {days > 0 ? `${days}d` : "expired"}
+            {disputeCountdown(dispute)}
           </span>
         );
       },

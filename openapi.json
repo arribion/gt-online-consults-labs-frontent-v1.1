@@ -2110,6 +2110,71 @@
         }
       }
     },
+    "/api/v1/disputes/{dispute_id}/revoke": {
+      "post": {
+        "tags": [
+          "Disputes"
+        ],
+        "summary": "Revoke Dispute",
+        "description": "Undo a confirmation: puts the dispute back to PENDING with no claim on it,\nso either party can claim it again.\n\nOnly the party who confirmed the transfer can revoke it \u2014 the claimant\nundoing their own win would just be taking the task back unilaterally,\nwhich is the situation the claim/confirm handshake exists to prevent.\n\nTwo things close the door for good:\n  * the 5-day window expiring, since reopening past it would only forfeit\n    on the next sweep anyway\n  * either entry having been billed on an invoice, because invoices are\n    frozen at generation and must not be contradicted after the fact",
+        "operationId": "revoke_dispute_api_v1_disputes__dispute_id__revoke_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dispute_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dispute Id"
+            }
+          },
+          {
+            "name": "accessToken",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accesstoken"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisputeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/disputes/mine": {
       "get": {
         "tags": [
@@ -2448,6 +2513,7 @@
           "Invoices"
         ],
         "summary": "Generate Invoice",
+        "description": "Generate one invoice for one tasker on one project for one period.",
         "operationId": "generate_invoice_api_v1_invoices_generate_post",
         "security": [
           {
@@ -2489,6 +2555,71 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/InvoiceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invoices/generate-bulk": {
+      "post": {
+        "tags": [
+          "Invoices"
+        ],
+        "summary": "Generate Invoices Bulk",
+        "description": "ADMIN/SUPERADMIN: invoice a whole period in one pass.\n\nWorks over the tasker x project pairs that actually have an assignment, and\nproduces one invoice per pair \u2014 a tasker on two projects gets two invoices,\nbecause a single invoice carries one rate and one cap.\n\nA pair with nothing billable is reported as skipped with a reason rather\nthan failing the run, so one quiet tasker can't block everyone else's pay.\nRates always come from the project and the tasker; there are no overrides\nhere, since a blanket override across dozens of invoices is not something\nanyone should be able to do by accident.\n\nSet `dry_run` to see the totals first \u2014 strongly recommended, since an\ninvoice cannot be un-generated.",
+        "operationId": "generate_invoices_bulk_api_v1_invoices_generate_bulk_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "accessToken",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Accesstoken"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkInvoiceGenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkInvoiceResult"
                 }
               }
             }
@@ -3141,6 +3272,208 @@
         ],
         "title": "Body_upload_resource_api_v1_resources_upload_post"
       },
+      "BulkInvoiceGenerateRequest": {
+        "properties": {
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "project_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Ids",
+            "description": "Restrict to these projects. Omit for every non-deactivated project."
+          },
+          "tasker_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tasker Ids",
+            "description": "Restrict to these taskers. Omit for every actively assigned tasker."
+          },
+          "include_carryover": {
+            "type": "boolean",
+            "title": "Include Carryover",
+            "default": true
+          },
+          "dry_run": {
+            "type": "boolean",
+            "title": "Dry Run",
+            "description": "Report what would be generated, and for how much, without writing anything. Nothing is created and no task entry is marked billed.",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "period_start",
+          "period_end"
+        ],
+        "title": "BulkInvoiceGenerateRequest",
+        "description": "Generate one invoice per tasker per project in a single pass.\n\nA tasker on three projects gets three invoices, because the PDF template\ncarries a single rate and cap per invoice \u2014 one combined invoice could not\nrepresent three different project rates."
+      },
+      "BulkInvoiceLine": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "project_name": {
+            "type": "string",
+            "title": "Project Name"
+          },
+          "tasker_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tasker Id"
+          },
+          "tasker_name": {
+            "type": "string",
+            "title": "Tasker Name"
+          },
+          "generated": {
+            "type": "boolean",
+            "title": "Generated"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "invoice_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Id"
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id"
+          },
+          "billable_tasks": {
+            "type": "integer",
+            "title": "Billable Tasks",
+            "default": 0
+          },
+          "billable_minutes": {
+            "type": "integer",
+            "title": "Billable Minutes",
+            "default": 0
+          },
+          "carried_over": {
+            "type": "integer",
+            "title": "Carried Over",
+            "default": 0
+          },
+          "total": {
+            "type": "number",
+            "title": "Total",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "project_name",
+          "tasker_id",
+          "tasker_name",
+          "generated"
+        ],
+        "title": "BulkInvoiceLine",
+        "description": "One tasker x project pair considered by a bulk run."
+      },
+      "BulkInvoiceResult": {
+        "properties": {
+          "dry_run": {
+            "type": "boolean",
+            "title": "Dry Run"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "generated_count": {
+            "type": "integer",
+            "title": "Generated Count"
+          },
+          "skipped_count": {
+            "type": "integer",
+            "title": "Skipped Count"
+          },
+          "total_value": {
+            "type": "number",
+            "title": "Total Value"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/BulkInvoiceLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dry_run",
+          "period_start",
+          "period_end",
+          "generated_count",
+          "skipped_count",
+          "total_value",
+          "lines"
+        ],
+        "title": "BulkInvoiceResult"
+      },
       "ChangePasswordRequest": {
         "properties": {
           "oldPassword": {
@@ -3234,6 +3567,19 @@
             "format": "date-time",
             "title": "Raised At"
           },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "days_remaining": {
+            "type": "integer",
+            "title": "Days Remaining"
+          },
+          "hours_remaining": {
+            "type": "integer",
+            "title": "Hours Remaining"
+          },
           "claimed_by": {
             "anyOf": [
               {
@@ -3289,6 +3635,11 @@
               }
             ],
             "title": "Forfeited At"
+          },
+          "can_revoke": {
+            "type": "boolean",
+            "title": "Can Revoke",
+            "default": false
           }
         },
         "type": "object",
@@ -3299,7 +3650,10 @@
           "user_1",
           "user_2",
           "status",
-          "raised_at"
+          "raised_at",
+          "expires_at",
+          "days_remaining",
+          "hours_remaining"
         ],
         "title": "DisputeResponse"
       },
@@ -3407,6 +3761,12 @@
               }
             ],
             "title": "Invoice Number"
+          },
+          "include_carryover": {
+            "type": "boolean",
+            "title": "Include Carryover",
+            "description": "Also bill work dated before period_start that has never been invoiced \u2014 typically a task that was under dispute when its own period was billed and has since resolved. Leave on unless you deliberately want a period-only invoice.",
+            "default": true
           },
           "tasker_id": {
             "anyOf": [

@@ -1,5 +1,12 @@
 import { apiClient, cleanParams, downloadFile } from "./api";
-import type { Invoice, InvoiceFilters, InvoiceGenerateRequest, InvoiceStatus } from "@/types";
+import type {
+  BulkInvoiceGenerateRequest,
+  BulkInvoiceResult,
+  Invoice,
+  InvoiceFilters,
+  InvoiceGenerateRequest,
+  InvoiceStatus,
+} from "@/types";
 
 export const invoicesService = {
   /**
@@ -12,6 +19,15 @@ export const invoicesService = {
    */
   generate: async (payload: InvoiceGenerateRequest): Promise<Invoice> => {
     const { data } = await apiClient.post<Invoice>("/invoices/generate", payload);
+    return data;
+  },
+
+  /**
+   * Admin: invoice a whole period in one pass, one invoice per tasker per
+   * project. Send `dry_run` first — an invoice cannot be un-generated.
+   */
+  generateBulk: async (payload: BulkInvoiceGenerateRequest): Promise<BulkInvoiceResult> => {
+    const { data } = await apiClient.post<BulkInvoiceResult>("/invoices/generate-bulk", payload);
     return data;
   },
 

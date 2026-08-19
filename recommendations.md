@@ -549,3 +549,110 @@ named in `message`.
 The snapshot in this repo was from 2026-08-07 and predated
 `PUT /members/{id}/reset-password` as well as items 1 and 2 above. It has been
 regenerated from the running app, so §4b's Option 1 is accurate again.
+
+---
+
+## 8. [2026-08-19] Dispute revocation, auto-forfeit, invoice carry-over & bulk generation
+
+All four are implemented in `client/` already — this section is the contract
+record, not a to-do list. The one item that changes a shape you may already be
+reading is §8.3.
+
+### 1. New: `POST /api/v1/disputes/{id}/revoke` (TASKER)
+
+Undoes a confirmation. The dispute returns to `PENDING`, the claim is cleared,
+and both entries go back to `DISPUTED` — either party can then claim again.
+
+Refused with a reason in three cases:
+- `403` — the caller is the resolved owner (only the *confirming* party may
+  revoke; the winner undoing their own win would defeat the handshake)
+- `409` — the 5-day window has closed, so the resolution is final
+- `409` — either entry has already been billed on an invoice
+
+The deadline is **not** extended by a revoke; it still runs from `raised_at`.
+
+- [x] Wired in `src/components/disputes/DisputeCard.tsx` and
+      `src/routes/client/Disputes.tsx`.
+
+### 2. Changed: `DisputeResponse` gained four fields
+
+```
+expires_at: string        // ISO — raised_at + 5 days
+days_remaining: int
+hours_remaining: int
+can_revoke: bool          // whether revoke would succeed right now
+```
+
+Prefer these over computing the countdown client-side — the server's clock is
+the one that decides, and `can_revoke` saves re-deriving the three rules above.
+
+- [x] `disputeDaysRemaining()` was removed from `src/types/dispute.ts` in favour
+      of the server fields; `disputeCountdown()` / `disputeUrgency()` replace it.
+
+### 3. ⚠️ Changed: invoice generation now sweeps up carry-over work
+
+**This changes which tasks land on an invoice, so it's worth knowing about even
+though no request shape broke.**
+
+The problem: a task disputed on 10 Aug is correctly excluded from the 1–15 Aug
+invoice; the dispute resolves on 20 Aug; under a strict period window that task
+would **never** be billed, because its date sits in an already-invoiced period.
+
+`TaskEntry` now carries `invoice_id`, stamped when an entry is billed, and
+generation asks for entries that are *unbilled and dated on or before
+`period_end`* rather than entries *inside the period*. So:
+
+- work that becomes billable after its own period was invoiced appears on the
+  **next** invoice, dated in the past;
+- nothing is ever billed twice, however many overlapping periods you generate;
+- **re-running a generation for the same period is safe** — it simply finds
+  nothing and returns `404`.
+
+`POST /api/v1/invoices/generate` accepts `include_carryover` (default `true`);
+pass `false` for a strict period-only invoice.
+
+Exclusion counts still describe the stated period only, so an old forfeited task
+isn't re-counted as an exclusion forever.
+
+- [x] Carried-over line items are surfaced on the invoice document in
+      `src/routes/shared/InvoiceDetail.tsx` — derived from `items[].task_date`
+      being before `period_start`, so no new response field was needed.
+
+### 4. New: `POST /api/v1/invoices/generate-bulk` (ADMIN/SUPERADMIN)
+
+```
+{ period_start, period_end, project_ids?, tasker_ids?, include_carryover?, dry_run? }
+→ { dry_run, period_start, period_end, generated_count, skipped_count,
+    total_value, lines: BulkInvoiceLine[] }
+```
+
+One invoice per tasker × project — a tasker on three projects gets three
+invoices, for the same reason a combined invoice was rejected in §5.4 (the PDF
+carries a single rate and cap). Pairs with nothing billable are returned as
+skipped **with a reason** rather than failing the run.
+
+`dry_run: true` costs the whole run and writes nothing. There are no rate
+overrides on this endpoint; single generation still has them.
+
+- [x] `src/components/invoices/BulkInvoiceDialog.tsx`, reached from
+      `/admin/invoices`. Two-step: preview, then commit.
+
+### 5. Behavioural: disputes now forfeit on an hourly schedule
+
+Previously the 5-day deadline was only evaluated when someone hit a dispute
+endpoint. There is now an hourly background sweep as well (plus one at startup),
+so entries flip even when nobody opens the app. The lazy check remains, so a
+read is never stale in between.
+
+Practical effect for the frontend: a dispute's `status` can change to
+`FORFEITED` without any user action, so don't cache dispute lists across long
+sessions.
+
+### 6. Schema note
+
+`task_entries.invoice_id` is a new nullable, indexed FK. Migration
+`24a1efebb0de` adds it and **backfills** existing invoices' entries by matching
+`(project, tasker, task_id)` against the frozen `items` — without that, the
+first generation after deploying would have re-billed the entire history.
+
+Run `alembic upgrade head` (the Docker entrypoint already does).

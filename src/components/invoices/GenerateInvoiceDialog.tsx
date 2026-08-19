@@ -37,6 +37,7 @@ export function GenerateInvoiceDialog({
   const [periodEnd, setPeriodEnd] = useState(defaults.to);
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [rate, setRate] = useState("");
+  const [includeCarryover, setIncludeCarryover] = useState(true);
   const [paymentRate, setPaymentRate] = useState("");
   const [error, setError] = useState("");
 
@@ -49,6 +50,7 @@ export function GenerateInvoiceDialog({
         period_start: periodStart,
         period_end: periodEnd,
         invoice_number: invoiceNumber.trim() || undefined,
+        include_carryover: includeCarryover,
         ...(isAdmin
           ? {
               tasker_id: taskerId,
@@ -167,6 +169,19 @@ export function GenerateInvoiceDialog({
             </FormGrid>
           </fieldset>
         )}
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-line bg-ink2/40 px-3 py-2.5">
+          <input
+            type="checkbox"
+            checked={includeCarryover}
+            onChange={(event) => setIncludeCarryover(event.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-azure"
+          />
+          <span className="text-xs text-mist">
+            <span className="font-semibold text-frost">Include earlier unbilled work.</span> Picks up
+            tasks from before this period that were never invoiced — typically ones under dispute
+            when their own period was billed, now resolved. Each task is still billed only once.
+          </span>
+        </label>
       </form>
 
       <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

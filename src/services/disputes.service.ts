@@ -31,6 +31,17 @@ export const disputesService = {
     return data;
   },
 
+  /**
+   * Undo a confirmation: the dispute goes back to PENDING with no claim, so
+   * either party can claim it again. Only the confirming party may do this,
+   * only inside the 5-day window, and only while neither entry is invoiced —
+   * all enforced server-side; `dispute.can_revoke` mirrors the answer.
+   */
+  revoke: async (disputeId: string): Promise<Dispute> => {
+    const { data } = await apiClient.post<Dispute>(`/disputes/${disputeId}/revoke`);
+    return data;
+  },
+
   exportPdf: async (filters: DisputeFilters = {}): Promise<void> => {
     // The export route names the status param `status_filter`, unlike the list
     // route which aliases it to `status`.

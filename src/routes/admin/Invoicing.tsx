@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Clock, Plus, Receipt } from "lucide-react";
+import { CheckCircle2, Clock, Layers, Plus, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AsyncSection,
@@ -17,6 +17,7 @@ import {
   STATUS_COLORS,
   foldToSeries,
 } from "@/components/common";
+import { BulkInvoiceDialog } from "@/components/invoices/BulkInvoiceDialog";
 import { GenerateInvoiceDialog } from "@/components/invoices/GenerateInvoiceDialog";
 import { invoiceColumns } from "@/components/invoices/invoiceColumns";
 import { useAsync } from "@/hooks/useAsync";
@@ -44,6 +45,7 @@ export default function AdminInvoicing() {
   const [taskerId, setTaskerId] = useState("");
   const [status, setStatus] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [bulkGenerating, setBulkGenerating] = useState(false);
 
   const { data, loading, error, refetch } = useAsync<Invoice[]>(
     () =>
@@ -93,9 +95,14 @@ export default function AdminInvoicing() {
         title="Invoicing"
         description="Generate invoices on a tasker's behalf, track what's been paid, and download the PDF for any of them."
         actions={
-          <Button onClick={() => setGenerating(true)}>
-            <Plus className="h-4 w-4" /> Generate invoice
-          </Button>
+          <>
+            <Button variant="outline" onClick={() => setBulkGenerating(true)}>
+              <Layers className="h-4 w-4" /> Bulk generate
+            </Button>
+            <Button onClick={() => setGenerating(true)}>
+              <Plus className="h-4 w-4" /> Generate invoice
+            </Button>
+          </>
         }
       />
 
@@ -206,6 +213,14 @@ export default function AdminInvoicing() {
           void refetch();
           navigate(`/admin/invoices/${invoice.id}`);
         }}
+      />
+
+      <BulkInvoiceDialog
+        open={bulkGenerating}
+        onOpenChange={setBulkGenerating}
+        projectOptions={projectOptions}
+        taskerOptions={taskerOptions}
+        onGenerated={refetch}
       />
     </>
   );
