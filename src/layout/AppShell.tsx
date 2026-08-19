@@ -5,6 +5,7 @@ import logo from "@/assets/gt-logo.png";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useOpenDisputeCount } from "@/hooks/useOpenDisputeCount";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { CountPill } from "@/components/common/StatusBadge";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { ADMIN_NAV, TASKER_NAV } from "@/constants/navigation";
@@ -239,6 +240,7 @@ export function AppShell({ variant }: { variant: "tasker" | "admin" }) {
               </div>
 
               <div className="ml-auto flex items-center gap-2">
+                <NotificationBell />
                 <AccountMenu />
               </div>
             </div>

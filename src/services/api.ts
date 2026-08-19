@@ -35,6 +35,19 @@ export const errorMessage = (error: unknown): string => {
         return field ? `${field}: ${first.msg}` : first.msg;
       }
     }
+    /*
+     * The task-upload endpoints reject a whole file with a structured body —
+     * `{ message, errors, duplicate_task_ids }` — because a file can fail for
+     * several reasons at once and naming only the first is useless. Without
+     * this branch that body falls through to "Something went wrong", which is
+     * the least helpful possible response to a spreadsheet with a bad row in it.
+     */
+    if (detail && typeof detail === "object" && !Array.isArray(detail)) {
+      const { message, errors } = detail as { message?: string; errors?: string[] };
+      if (message && errors?.length) return `${message} ${errors.join(" ")}`;
+      if (message) return message;
+      if (errors?.length) return errors.join(" ");
+    }
     if (typeof error.response?.data?.message === "string") return error.response.data.message;
     if (error.response?.status === 403) return "You don't have permission to do that.";
     if (!error.response) return "Can't reach the server. Check your connection and try again.";

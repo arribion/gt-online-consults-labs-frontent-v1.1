@@ -13,6 +13,8 @@ export * from "./project";
 export * from "./assignment";
 export * from "./task";
 export * from "./dispute";
+export * from "./adjustment";
+export * from "./notification";
 export * from "./invoice";
 export * from "./resource";
 export * from "./ui";

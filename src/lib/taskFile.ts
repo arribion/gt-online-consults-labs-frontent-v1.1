@@ -1,4 +1,4 @@
-import { ACCOUNT_MAX_LENGTH, REQUIRED_TASK_HEADERS } from "@/types";
+import { ACCOUNT_MAX_LENGTH, REQUIRED_TASK_HEADERS, TASK_MAX_AGE_DAYS } from "@/types";
 
 /**
  * Client-side mirror of `backend-python/app/services/task_parsing.py`.
@@ -58,8 +58,26 @@ export function validateRow(
 
   if (!values.taskingDate) {
     errors.push("TASKING DATE is required");
-  } else if (Number.isNaN(new Date(values.taskingDate).getTime())) {
-    errors.push(`TASKING DATE "${values.taskingDate}" isn't a date the server can read`);
+  } else {
+    const parsed = new Date(values.taskingDate);
+    if (Number.isNaN(parsed.getTime())) {
+      errors.push(`TASKING DATE "${values.taskingDate}" isn't a date the server can read`);
+    } else {
+      // The server is the authority here — it reckons the window in the
+      // business timezone, not the browser's. This check exists so a stale
+      // spreadsheet is caught before the upload rather than after, and it is
+      // deliberately a day looser than the server so a timezone difference
+      // never rejects a row the server would have accepted.
+      const days = Math.floor((Date.now() - parsed.getTime()) / 86_400_000);
+      if (days > TASK_MAX_AGE_DAYS + 1) {
+        errors.push(
+          `TASKING DATE "${values.taskingDate}" is older than ${TASK_MAX_AGE_DAYS} days — ` +
+            "work has to be logged within that window",
+        );
+      } else if (days < -1) {
+        errors.push(`TASKING DATE "${values.taskingDate}" is in the future`);
+      }
+    }
   }
 
   const durationMatch = DURATION_PATTERN.exec(values.taskDuration);

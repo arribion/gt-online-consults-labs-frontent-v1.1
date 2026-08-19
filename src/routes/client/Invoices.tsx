@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Receipt } from "lucide-react";
+import { Plus, Receipt, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AsyncSection,
@@ -19,9 +19,14 @@ import { GenerateInvoiceDialog } from "@/components/invoices/GenerateInvoiceDial
 import { invoiceColumns } from "@/components/invoices/invoiceColumns";
 import { useAsync } from "@/hooks/useAsync";
 import { useAllProjects, useMyProjects } from "@/hooks/useLookups";
-import { invoicesService } from "@/services";
-import { formatCurrency } from "@/lib/format";
-import { INVOICE_STATUSES, type Invoice } from "@/types";
+import { adjustmentsService, invoicesService } from "@/services";
+import { formatCurrency, formatDate } from "@/lib/format";
+import {
+  INVOICE_STATUSES,
+  isAdjustmentOpen,
+  type Adjustment,
+  type Invoice,
+} from "@/types";
 
 const STATUS_OPTIONS = INVOICE_STATUSES.map((value) => ({ value, label: value }));
 
@@ -49,6 +54,22 @@ export default function Invoices() {
       }),
     [projectId, status],
     [],
+  );
+
+  const { data: adjustments } = useAsync<Adjustment[]>(
+    () => adjustmentsService.mine(),
+    [],
+    [],
+  );
+
+  const pendingAdjustments = useMemo(
+    () => adjustments.filter(isAdjustmentOpen),
+    [adjustments],
+  );
+
+  const owed = useMemo(
+    () => pendingAdjustments.reduce((sum, a) => sum + a.outstanding, 0),
+    [pendingAdjustments],
   );
 
   const totals = useMemo(() => {
@@ -99,6 +120,39 @@ export default function Invoices() {
           hint={`${totals.outstandingCount} invoice${totals.outstandingCount === 1 ? "" : "s"} not yet marked paid`}
         />
       </StatGrid>
+
+      {pendingAdjustments.length > 0 && (
+        <Panel className="border-warn/40 bg-warn/[0.06]">
+          <div className="flex items-start gap-3">
+            <Scale className="mt-0.5 h-4 w-4 shrink-0 text-warn" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-frost">
+                {formatCurrency(owed)} will come off a future invoice
+              </p>
+              <p className="mt-0.5 text-sm text-mist">
+                These tasks were paid to you and have since been awarded to another claimant. The
+                invoice that paid them isn't changed — the amount is deducted from your next one
+                instead, and never takes an invoice below zero.
+              </p>
+              <ul className="mt-2 space-y-1">
+                {pendingAdjustments.map((adjustment) => (
+                  <li key={adjustment.id} className="text-xs text-frost/90">
+                    <span className="font-mono text-dim">{adjustment.task_id}</span> —{" "}
+                    {formatCurrency(adjustment.outstanding)}
+                    {adjustment.source_invoice_number
+                      ? ` from ${adjustment.source_invoice_number}`
+                      : ""}
+                    <span className="text-dim"> · raised {formatDate(adjustment.created_at)}</span>
+                    {adjustment.status === "PENDING_APPROVAL" && (
+                      <span className="text-dim"> · not yet approved</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Panel>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel className="space-y-4 lg:col-span-2">

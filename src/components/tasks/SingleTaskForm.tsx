@@ -13,7 +13,22 @@ import { validateRow } from "@/lib/taskFile";
 import { formatMinutes, toDateInput } from "@/lib/format";
 import { tasksService } from "@/services";
 import { useMutation } from "@/hooks/useAsync";
-import { ACCOUNT_MAX_LENGTH, type SelectOption, type TaskImportSummary } from "@/types";
+import {
+  ACCOUNT_MAX_LENGTH,
+  TASK_MAX_AGE_DAYS,
+  type SelectOption,
+  type TaskImportSummary,
+} from "@/types";
+
+/**
+ * The picker's bounds, so an out-of-window date is unreachable rather than
+ * rejected after the fact. The server decides for real — it reckons the window
+ * in the business timezone rather than the browser's.
+ */
+const TODAY = toDateInput(new Date());
+const EARLIEST_DATE = toDateInput(
+  new Date(Date.now() - TASK_MAX_AGE_DAYS * 86_400_000),
+);
 
 const EMPTY = {
   taskId: "",
@@ -121,9 +136,12 @@ export function SingleTaskForm({
             label="Tasking date"
             type="date"
             required
+            min={EARLIEST_DATE}
+            max={TODAY}
             value={values.taskingDate}
             onChange={set("taskingDate")}
             className="[color-scheme:dark]"
+            hint={`Work must be logged within ${TASK_MAX_AGE_DAYS} days of being done.`}
             error={errorFor("TASKING DATE")}
           />
           <TextField

@@ -5,7 +5,7 @@ import type {
   Invoice,
   InvoiceFilters,
   InvoiceGenerateRequest,
-  InvoiceStatus,
+  InvoiceTransition,
 } from "@/types";
 
 export const invoicesService = {
@@ -45,12 +45,26 @@ export const invoicesService = {
   },
 
   /** Admin only. Marking Paid stamps `paid_at`; moving away from Paid clears it. */
-  setStatus: async (id: string, status: InvoiceStatus): Promise<Invoice> => {
+  setStatus: async (id: string, status: InvoiceTransition): Promise<Invoice> => {
     const { data } = await apiClient.patch<Invoice>(`/invoices/${id}/status`, { status });
     return data;
   },
 
   downloadPdf: async (invoice: Invoice): Promise<void> => {
     await downloadFile(`/invoices/${invoice.id}/pdf`, `${invoice.external_id}.pdf`);
+  },
+
+  /**
+   * Admin: void an invoice for good and release the work it billed, so the
+   * next generation picks up whatever is still rightfully theirs.
+   *
+   * Terminal. An invoice is only invalidated because it bills work that turned
+   * out not to be this tasker's, and clearing a flag could not make that
+   * document correct again. A paid invoice cannot be invalidated at all —
+   * that money is out of the door, and an adjustment is what recovers it.
+   */
+  invalidate: async (id: string, reason: string): Promise<Invoice> => {
+    const { data } = await apiClient.post<Invoice>(`/invoices/${id}/invalidate`, { reason });
+    return data;
   },
 };

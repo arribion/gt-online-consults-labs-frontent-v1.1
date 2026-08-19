@@ -1,7 +1,17 @@
 /** Invoices. One invoice = one tasker × one project × one billing period. */
 
-export const INVOICE_STATUSES = ["Draft", "Issued", "Paid", "Overdue"] as const;
+export const INVOICE_STATUSES = ["Draft", "Issued", "Paid", "Overdue", "Invalidated"] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
+
+/**
+ * The statuses an admin can move an invoice between.
+ *
+ * `Invalidated` is not one of them: it is terminal and has its own action,
+ * because voiding also releases the work the invoice billed so it can be
+ * invoiced again. Nothing comes back out of it.
+ */
+export const INVOICE_TRANSITIONS = ["Draft", "Issued", "Paid", "Overdue"] as const;
+export type InvoiceTransition = (typeof INVOICE_TRANSITIONS)[number];
 
 /** A frozen snapshot of one billed task row, taken at generation time. */
 export type InvoiceItem = {
@@ -12,6 +22,15 @@ export type InvoiceItem = {
   cap_minutes: number;
   paid_minutes: number;
   account: string;
+};
+
+/** One deduction applied to this invoice from an earlier overpayment. */
+export type InvoiceAdjustmentLine = {
+  adjustment_id: string;
+  task_id: string | null;
+  amount: number;
+  outstanding_after: number;
+  reason: string | null;
 };
 
 /** Rows found in the period but left off the invoice, and why. */
@@ -39,13 +58,21 @@ export type Invoice = {
   items: InvoiceItem[] | null;
   exclusions: InvoiceExclusions | null;
   subtotal: number;
+  /** Negative when money was recovered from an earlier overpayment. */
   adjustments: number;
+  adjustment_detail: InvoiceAdjustmentLine[] | null;
   total: number;
   status: InvoiceStatus;
   issued_at: string | null;
   paid_at: string | null;
+  invalidated_at: string | null;
+  invalidated_reason: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type InvoiceInvalidateRequest = {
+  reason: string;
 };
 
 export type InvoiceGenerateRequest = {
