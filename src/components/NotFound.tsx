@@ -1,38 +1,38 @@
-import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-function NotFoundComponent() {
-  const navigate = useNavigate();
+import { Link } from "react-router-dom";
+import { Compass, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { HOME_FOR_ROLE } from "@/constants/navigation";
 
-  const returnPrev = () => {
-    navigate(-1);
-  };
+export default function NotFound() {
+  const { role } = useAuth();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-sky-500">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">
-          Page not found
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <div className="relative grid min-h-screen place-items-center px-5">
+      <div className="ambient" />
+      <div className="w-full max-w-md rounded-2xl border border-line2/60 bg-panel/90 p-8 text-center shadow-card-hover backdrop-blur">
+        <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-line2/70 bg-ink2 text-sky2">
+          <Compass className="h-5 w-5" />
+        </span>
+        <p className="mt-5 font-display text-5xl font-bold tracking-tight text-frost">404</p>
+        <h1 className="mt-2 font-display text-lg font-semibold text-frost">Page not found</h1>
+        <p className="mt-2 text-sm text-mist">
+          That address doesn't exist. It may have moved, or the link that brought you here is out of
+          date.
         </p>
-        <div className="mt-6 flex flex-col gap-2 justify-center sm:flex-row">
-          <button
-            onClick={returnPrev}
-            className=" flex gap-3  items-center justify-center rounded-md bg-sky-500 px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-sky-600">
-            <ArrowLeft size={15} />
-            Go Back
-          </button>
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent">
-            Home
-          </Link>
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Button asChild variant="outline">
+            <Link to="/">
+              <Home className="h-4 w-4" /> Home
+            </Link>
+          </Button>
+          {role && (
+            <Button asChild>
+              <Link to={HOME_FOR_ROLE[role]}>Go to my dashboard</Link>
+            </Button>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
-export default NotFoundComponent;

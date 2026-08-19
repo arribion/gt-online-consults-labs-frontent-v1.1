@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    /* `@/` resolves to src/ — mirrors resolve.tsconfigPaths in vite.config.ts */
+    "paths": { "@/*": ["./src/*"] },
+
     "target": "es2023",
     "lib": ["ES2023", "DOM"],
     "module": "esnext",

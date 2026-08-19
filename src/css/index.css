@@ -1,18 +1,68 @@
 @import "tailwindcss";
-
 @import "tw-animate-css";
-
 @import "shadcn/tailwind.css";
-
 @import "@fontsource-variable/geist";
 
-body{
-  scrollbar-width: thin;
-  scrollbar-color: blue;
+/*
+  Single stylesheet for the whole product. The palette below is the landing
+  page's — every authenticated screen now renders from the same tokens, so the
+  marketing site and the dashboards cannot drift apart.
+*/
+
+@theme {
+  /* brand surfaces, darkest to lightest */
+  --color-deep: #040b18;
+  --color-ink: #061226;
+  --color-ink2: #081a33;
+  --color-panel: #0a1e3a;
+  --color-panel2: #0d2444;
+  --color-line: #173253;
+  --color-line2: #234a78;
+
+  /* brand ink */
+  --color-frost: #eaf3fd;
+  --color-mist: #8fa8c7;
+  --color-dim: #647fa0;
+
+  /* brand accents */
+  --color-azure: #2f9dff;
+  --color-sky2: #5cc6ff;
+  --color-ice: #bfe4ff;
+  --color-amber: #ffb454;
+
+  /* state, reserved — never reused as a chart series */
+  --color-good: #1fae74;
+  --color-warn: #d9a01f;
+  --color-bad: #e0524f;
+
+  /*
+    Chart series, fixed order, never cycled. Validated against the #0a1e3a card
+    surface with the dataviz validator (lightness band, chroma floor, adjacent
+    CVD separation, normal-vision floor, contrast) — do not re-step by eye.
+  */
+  --color-series-1: #1f7fd6;
+  --color-series-2: #c67f22;
+  --color-series-3: #17a07c;
+  --color-series-4: #7b6ae0;
+  --color-series-5: #3499b8;
+
+  /* single-hue sequential ramp for magnitude */
+  --color-seq-1: #123f6b;
+  --color-seq-2: #1a5c9e;
+  --color-seq-3: #1f7fd6;
+  --color-seq-4: #4f9fe4;
+  --color-seq-5: #86c1ef;
+
+  --font-display: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
-@custom-variant dark (&:is(.dark *));
-
+/*
+  shadcn/radix components read these semantic names. Pointing them at the brand
+  palette is what makes every off-the-shelf primitive match the landing page
+  without touching the component files.
+*/
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -21,6 +71,7 @@ body{
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -37,15 +88,19 @@ body{
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  --color-chart-1: var(--color-series-1);
+  --color-chart-2: var(--color-series-2);
+  --color-chart-3: var(--color-series-3);
+  --color-chart-4: var(--color-series-4);
+  --color-chart-5: var(--color-series-5);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -54,137 +109,235 @@ body{
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --font-heading: var(--font-sans);
-  --font-body: "Inter", system-ui, sans-serif;
-  --font-sans: 'Geist Variable', sans-serif;
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0.002 250);
-  --success: oklch(0.6 0.18 155);
-  --success-foreground: oklch(0.99 0.002 155);
-  --warning: oklch(0.75 0.15 75);
-  --warning-foreground: oklch(0.25 0.05 75);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
 
-  /* Custom fintech tokens */
-  --gradient-hero: linear-gradient(135deg, oklch(0.25 0.08 250), oklch(0.35 0.12 250));
-  --gradient-primary: linear-gradient(135deg, oklch(0.45 0.15 250), oklch(0.5 0.18 270));
-  --gradient-card: linear-gradient(145deg, oklch(1 0 0), oklch(0.97 0.005 250));
-  --shadow-card: 0 1px 3px oklch(0.15 0.03 250 / 0.06), 0 4px 16px oklch(0.15 0.03 250 / 0.04);
-  --shadow-card-hover: 0 4px 12px oklch(0.15 0.03 250 / 0.08), 0 8px 32px oklch(0.15 0.03 250 / 0.06);
-  --shadow-button: 0 2px 8px oklch(0.45 0.15 250 / 0.25);
+  --background: #061226;
+  --foreground: #eaf3fd;
+  --card: #0a1e3a;
+  --card-foreground: #eaf3fd;
+  --popover: #0d2444;
+  --popover-foreground: #eaf3fd;
+  --primary: #2f9dff;
+  --primary-foreground: #04101f;
+  --secondary: #081a33;
+  --secondary-foreground: #eaf3fd;
+  --muted: #081a33;
+  --muted-foreground: #8fa8c7;
+  --accent: #0d2444;
+  --accent-foreground: #eaf3fd;
+  --destructive: #e0524f;
+  --destructive-foreground: #fff5f5;
+  --success: #1fae74;
+  --success-foreground: #04160f;
+  --warning: #d9a01f;
+  --warning-foreground: #1a1203;
+  --border: #173253;
+  --input: #173253;
+  --ring: #2f9dff;
+
+  --sidebar: #081a33;
+  --sidebar-foreground: #eaf3fd;
+  --sidebar-primary: #2f9dff;
+  --sidebar-primary-foreground: #04101f;
+  --sidebar-accent: #0d2444;
+  --sidebar-accent-foreground: #eaf3fd;
+  --sidebar-border: #173253;
+  --sidebar-ring: #2f9dff;
+
+  --gradient-hero: linear-gradient(135deg, #0a1e3a, #123f6b);
+  --gradient-primary: linear-gradient(135deg, #2f9dff, #1873e0);
+  --shadow-card: 0 1px 2px rgb(2 8 20 / 0.4), 0 8px 24px -16px rgb(2 8 20 / 0.6);
+  --shadow-card-hover: 0 4px 12px rgb(2 8 20 / 0.45), 0 18px 48px -24px rgb(20 90 180 / 0.5);
+  --shadow-button: 0 10px 30px -10px rgb(47 157 255 / 0.7);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.99 0.002 250);
-  --success: oklch(0.65 0.18 155);
-  --success-foreground: oklch(0.99 0.002 155);
-  --warning: oklch(0.75 0.15 75);
-  --warning-foreground: oklch(0.15 0.05 75);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 @layer base {
   * {
-    border-color: var(--color-border);
     @apply border-border outline-ring/50;
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: var(--font-body);
-    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
+    font-family: var(--font-display);
   }
-  html {
-    @apply font-sans;
+
+  ::selection {
+    background: rgb(47 157 255 / 0.35);
+    color: #fff;
+  }
+
+  /* thin, on-brand scrollbars instead of the browser default */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line2) transparent;
+  }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-line2);
+    border-radius: 999px;
+  }
+
+  /* the focus ring has to survive on every surface, including the sidebar */
+  :focus-visible {
+    outline: 2px solid var(--color-azure);
+    outline-offset: 2px;
   }
 }
 
 @layer utilities {
-  .gradient-hero {
-    background: var(--gradient-hero);
+  .gradient-hero { background: var(--gradient-hero); }
+  .gradient-primary { background: var(--gradient-primary); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-card-hover { box-shadow: var(--shadow-card-hover); }
+  .shadow-button { box-shadow: var(--shadow-button); }
+
+  /* horizontal-scroll container for wide tables — the page itself never scrolls sideways */
+  .scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-  .shadow-card-hover {
-    box-shadow: var(--shadow-card-hover);
-  }
-  .shadow-button {
-    box-shadow: var(--shadow-button);
-  }
+}
+
+/* ---------- ambient background (landing + auth screens) ---------- */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 12% -6%, rgba(47, 157, 255, 0.16), transparent 60%),
+    radial-gradient(1100px 640px at 92% 4%, rgba(28, 98, 189, 0.18), transparent 62%),
+    radial-gradient(800px 700px at 50% 110%, rgba(20, 74, 148, 0.16), transparent 60%),
+    linear-gradient(180deg, #061226 0%, #050e1e 45%, #040b18 100%);
+}
+.ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(120, 180, 255, 0.1) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 75%);
+}
+.ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(90, 150, 220, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(90, 150, 220, 0.05) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 70% 55% at 78% 12%, #000 0%, transparent 70%);
+}
+
+/* a quieter version for the app shell, which already carries a lot of chrome */
+.ambient-app {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1000px 560px at 85% -10%, rgba(47, 157, 255, 0.1), transparent 62%),
+    radial-gradient(800px 640px at 0% 100%, rgba(20, 74, 148, 0.12), transparent 60%),
+    linear-gradient(180deg, #061226 0%, #050f21 100%);
+}
+
+/* ---------- reveal on scroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- keyframes ---------- */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes floaty2 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+@keyframes pulseDot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(92, 198, 255, 0.45); }
+  70% { box-shadow: 0 0 0 9px rgba(92, 198, 255, 0); }
+}
+@keyframes dashFlow {
+  to { stroke-dashoffset: -240; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes quoteIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.quote-swap { animation: quoteIn 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+
+.anim-float { animation: floaty 6s ease-in-out infinite; }
+.anim-float2 { animation: floaty2 7s ease-in-out infinite; }
+.anim-pulse-dot { animation: pulseDot 2.4s ease-out infinite; }
+.anim-dash { stroke-dasharray: 6 8; animation: dashFlow 9s linear infinite; }
+
+.glow-ring {
+  box-shadow:
+    0 0 0 1px rgba(92, 198, 255, 0.18),
+    0 20px 60px -20px rgba(20, 90, 180, 0.55),
+    0 0 80px -30px rgba(47, 157, 255, 0.5);
+}
+
+.text-shimmer {
+  background: linear-gradient(100deg, #5cc6ff 20%, #bfe4ff 40%, #2f9dff 60%, #5cc6ff 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s, box-shadow 0.35s, background-color 0.35s;
+}
+.card-hover:hover {
+  transform: translateY(-5px);
+  border-color: rgba(92, 198, 255, 0.4);
+  box-shadow: 0 24px 60px -28px rgba(20, 110, 220, 0.55);
+}
+
+.nav-blur {
+  background: rgba(5, 13, 27, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.mock-scroll::-webkit-scrollbar { width: 4px; }
+.mock-scroll::-webkit-scrollbar-thumb { background: #234a78; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .anim-float, .anim-float2, .anim-pulse-dot, .anim-dash, .text-shimmer { animation: none; }
+  .card-hover:hover { transform: none; }
 }
