@@ -1,13 +1,13 @@
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosInstance } from "axios";
 import type { ApiEnvelope } from "@/types";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = (import.meta.env.VITE_BASE_URL || "").replace(/\/+$/, "");
 
 if (!BASE_URL) {
   console.error("VITE_BASE_URL is missing — set it in client/.env before starting the app.");
 }
 
-export const API_ROOT = `${BASE_URL ?? ""}/api/v1`;
+export const API_ROOT = `${BASE_URL}/api/v1`;
 
 /**
  * The one HTTP client in the app.
@@ -34,6 +34,19 @@ export const errorMessage = (error: unknown): string => {
         const field = Array.isArray(first.loc) ? first.loc.slice(1).join(".") : "";
         return field ? `${field}: ${first.msg}` : first.msg;
       }
+    }
+    /*
+     * The task-upload endpoints reject a whole file with a structured body —
+     * `{ message, errors, duplicate_task_ids }` — because a file can fail for
+     * several reasons at once and naming only the first is useless. Without
+     * this branch that body falls through to "Something went wrong", which is
+     * the least helpful possible response to a spreadsheet with a bad row in it.
+     */
+    if (detail && typeof detail === "object" && !Array.isArray(detail)) {
+      const { message, errors } = detail as { message?: string; errors?: string[] };
+      if (message && errors?.length) return `${message} ${errors.join(" ")}`;
+      if (message) return message;
+      if (errors?.length) return errors.join(" ");
     }
     if (typeof error.response?.data?.message === "string") return error.response.data.message;
     if (error.response?.status === 403) return "You don't have permission to do that.";

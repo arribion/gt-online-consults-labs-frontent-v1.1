@@ -11,9 +11,8 @@ import {
 import { DisputeCard } from "@/components/disputes/DisputeCard";
 import { useAsync, useMutation } from "@/hooks/useAsync";
 import { useMyProjects } from "@/hooks/useLookups";
-import { useAuth } from "@/hooks/useAuth";
 import { disputesService } from "@/services";
-import { disputeActionFor, type Dispute } from "@/types";
+import { DISPUTE_RESOLUTION_DAYS, otherClaimants, type Dispute } from "@/types";
 
 const TABS = [
   { value: "open", label: "Needs action" },
@@ -21,10 +20,9 @@ const TABS = [
 ];
 
 export default function Disputes() {
-  const { user } = useAuth();
   const { nameById } = useMyProjects();
   const [tab, setTab] = useState("open");
-  const [confirming, setConfirming] = useState<Dispute | null>(null);
+  const [withdrawing, setWithdrawing] = useState<Dispute | null>(null);
   const [revoking, setRevoking] = useState<Dispute | null>(null);
 
   const { data, loading, error, refetch } = useAsync<Dispute[]>(
@@ -33,41 +31,29 @@ export default function Disputes() {
     [],
   );
 
-  const { mutate: claim, pending: claiming } = useMutation(
-    (dispute: Dispute) => disputesService.claim(dispute.id),
-    { success: "Claim recorded — the other party has to confirm it.", onDone: () => void refetch() },
-  );
-
-  const { mutate: confirm, pending: confirmingPending } = useMutation(
+  const { mutate: withdraw, pending: withdrawPending } = useMutation(
     (dispute: Dispute) =>
-      disputesService.confirm(dispute.id, {
-        confirm_task_id: dispute.task_id,
-        transfer_to_user_id: dispute.claimed_by!.id,
-      }),
-    { success: "Dispute resolved.", onDone: () => void refetch() },
+      disputesService.withdraw(dispute.id, { confirm_task_id: dispute.task_id }),
+    { success: "You've stepped back from this task.", onDone: () => void refetch() },
   );
 
-  const { mutate: revoke, pending: revokingPending } = useMutation(
+  const { mutate: revoke, pending: revokePending } = useMutation(
     (dispute: Dispute) => disputesService.revoke(dispute.id),
-    {
-      success: "Transfer undone — the dispute is open again.",
-      onDone: () => void refetch(),
-    },
+    { success: "You're claiming this task again.", onDone: () => void refetch() },
   );
 
   /**
-   * "Needs action" is anything this person can still do something about — which
-   * includes a resolved dispute they confirmed and could still undo, not just
-   * pending ones.
+   * "Needs action" is anything this person can still change — which includes a
+   * settled dispute they could still take back, not only pending ones.
    */
   const { open, history } = useMemo(() => {
     const actionable = (dispute: Dispute) =>
-      dispute.status === "PENDING" || disputeActionFor(dispute, user?.id ?? null) === "revoke";
+      dispute.status === "PENDING" || dispute.can_revoke;
     return {
       open: data.filter(actionable),
       history: data.filter((dispute) => !actionable(dispute)),
     };
-  }, [data, user?.id]);
+  }, [data]);
 
   const visible = tab === "open" ? open : history;
   const projectName = (id: string) => nameById.get(id) ?? "Project";
@@ -77,16 +63,16 @@ export default function Disputes() {
       <PageHeader
         eyebrow="Disputes"
         title="Task disputes"
-        description="Raised automatically when someone else logs a task ID you already logged on the same project. Nothing notifies either side — this page is how you find out."
+        description="Raised automatically when someone else logs a task ID you already logged on the same project."
       />
 
       <Panel className="border-line/60 bg-ink2/40">
         <p className="text-sm text-mist">
-          <span className="font-semibold text-frost">How it settles:</span> one party claims the
-          task, the other confirms, and the task transfers to the claimant. A confirmation can be
-          undone by the person who gave it, as long as the window is still open and the task hasn't
-          been invoiced. Five days after it was raised, an unresolved dispute forfeits —{" "}
-          <span className="text-frost">both</span> entries drop out of invoicing permanently.
+          <span className="font-semibold text-frost">How it settles:</span> everyone who logged the
+          task is claiming it. The task goes to whoever is still claiming it once everyone else has
+          stepped back — you can take your own step back at any point while the window is open.
+          After {DISPUTE_RESOLUTION_DAYS} days, if more than one of you is still claiming it,{" "}
+          <span className="text-frost">nobody</span> is paid for that task.
         </p>
       </Panel>
 
@@ -114,7 +100,7 @@ export default function Disputes() {
               description={
                 tab === "open"
                   ? "No one has contested any of your logged tasks."
-                  : "Resolved and forfeited disputes will be listed here."
+                  : "Settled and forfeited disputes will be listed here."
               }
             />
           </Panel>
@@ -125,57 +111,60 @@ export default function Disputes() {
             <DisputeCard
               key={dispute.id}
               dispute={dispute}
-              currentUserId={user?.id ?? null}
               projectName={projectName(dispute.project_id)}
-              onClaim={claim}
-              onConfirm={setConfirming}
+              onWithdraw={setWithdrawing}
               onRevoke={setRevoking}
-              pending={claiming || confirmingPending || revokingPending}
+              pending={withdrawPending || revokePending}
             />
           ))}
         </ul>
       </AsyncSection>
 
       <ConfirmDialog
-        open={!!confirming}
-        onOpenChange={(next) => !next && setConfirming(null)}
-        title="Confirm the transfer?"
-        confirmLabel="Confirm transfer"
-        pending={confirmingPending}
+        open={!!withdrawing}
+        onOpenChange={(next) => !next && setWithdrawing(null)}
+        title="Step back from this task?"
+        confirmLabel="Step back"
+        pending={withdrawPending}
         message={
-          confirming && (
+          withdrawing && (
             <>
-              This gives task <span className="font-mono text-frost">{confirming.task_id}</span> to{" "}
-              <span className="font-semibold text-frost">{confirming.claimed_by?.full_name}</span>{" "}
-              and forfeits your own entry for it. You can undo this while the window is open and the
-              task hasn't been invoiced.
+              You give up your claim to{" "}
+              <span className="font-mono text-frost">{withdrawing.task_id}</span>. It goes to{" "}
+              {withdrawing.standing_count > 2 ? (
+                "whoever is still claiming it once everyone else has stepped back"
+              ) : (
+                <span className="font-semibold text-frost">
+                  {otherClaimants(withdrawing)[0]?.full_name ?? "the other claimant"}
+                </span>
+              )}
+              .{" "}
+              {withdrawing.involves_billed_work
+                ? "This task has already been paid to someone, so settling it will produce an adjustment on a future invoice."
+                : "You can take this back while the window is still open."}
             </>
           )
         }
         onConfirm={async () => {
-          if (!confirming) return;
-          await confirm(confirming);
-          setConfirming(null);
+          if (!withdrawing) return;
+          await withdraw(withdrawing);
+          setWithdrawing(null);
         }}
       />
 
       <ConfirmDialog
         open={!!revoking}
         onOpenChange={(next) => !next && setRevoking(null)}
-        title="Undo this transfer?"
-        confirmLabel="Undo transfer"
+        title="Claim this task again?"
+        confirmLabel="Claim it again"
         tone="default"
-        pending={revokingPending}
+        pending={revokePending}
         message={
           revoking && (
             <>
-              Task <span className="font-mono text-frost">{revoking.task_id}</span> goes back to
-              being disputed, and the claim on it is cleared — either you or{" "}
-              <span className="font-semibold text-frost">
-                {revoking.resolved_owner?.full_name}
-              </span>{" "}
-              can claim it again. The original 5-day deadline still applies, so if neither of you
-              settles it in time you both forfeit the task.
+              <span className="font-mono text-frost">{revoking.task_id}</span> goes back to being
+              contested between everyone who logged it. The original deadline still applies, so if
+              more than one of you is still claiming it when the time runs out, nobody is paid.
             </>
           )
         }

@@ -1,4 +1,4 @@
-import { AlertTriangle, Clock, Handshake, Undo2 } from "lucide-react";
+import { AlertTriangle, Check, Clock, Gavel, HandCoins, Undo2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { UserAvatar } from "@/components/common/UserAvatar";
@@ -6,7 +6,9 @@ import { formatDate, formatRelative } from "@/lib/format";
 import {
   disputeActionFor,
   disputeCountdown,
+  disputeProgress,
   disputeUrgency,
+  otherClaimants,
   type Dispute,
 } from "@/types";
 
@@ -18,35 +20,37 @@ const URGENCY_CLASS = {
 } as const;
 
 /**
- * One dispute, from the point of view of a tasker who is party to it.
+ * One contested task, from the point of view of a claimant.
  *
- * The deadline is the whole story: nothing notifies either party, and if the
- * five days run out both of them lose the task. So the countdown is the loudest
- * thing on the card — and it comes from the server, so it can't drift with a
- * wrong device clock. The action button says which single thing this person can
- * do right now: claim, confirm, wait, or undo a confirmation they regret.
+ * There is only ever one thing this person can do — step back, or take that
+ * back — however many other claimants there are. That is what makes a
+ * three-way no harder to read than a two-way: nobody is confirming *to*
+ * anyone, so there is no matrix of who agreed with whom, just a list of who is
+ * still claiming it and a count.
+ *
+ * The deadline is the loudest thing on the card because it decides the outcome
+ * on its own: if more than one person is still standing when it passes, nobody
+ * is paid. It comes from the server so it cannot drift with a wrong device
+ * clock.
  */
 export function DisputeCard({
   dispute,
-  currentUserId,
   projectName,
-  onClaim,
-  onConfirm,
+  onWithdraw,
   onRevoke,
   pending,
 }: {
   dispute: Dispute;
-  currentUserId: string | null;
   projectName: string;
-  onClaim: (dispute: Dispute) => void;
-  onConfirm: (dispute: Dispute) => void;
+  onWithdraw: (dispute: Dispute) => void;
   onRevoke: (dispute: Dispute) => void;
   pending?: boolean;
 }) {
-  const action = disputeActionFor(dispute, currentUserId);
-  const other = dispute.user_1.id === currentUserId ? dispute.user_2 : dispute.user_1;
+  const action = disputeActionFor(dispute);
+  const others = otherClaimants(dispute);
   const urgency = disputeUrgency(dispute);
   const highlight = dispute.status === "PENDING" && (urgency === "urgent" || urgency === "expired");
+  const youWon = dispute.status === "RESOLVED" && dispute.claimants.some((c) => c.is_you && !c.withdrawn);
 
   return (
     <li
@@ -64,12 +68,30 @@ export function DisputeCard({
         <StatusBadge status={dispute.status} />
       </div>
 
-      <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-line bg-ink2/50 px-3 py-2.5">
-        <UserAvatar name={other.full_name} size="sm" />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-frost">{other.full_name}</p>
-          <p className="text-xs text-mist">also logged this task</p>
-        </div>
+      <div className="mt-3 space-y-1.5 rounded-xl border border-line bg-ink2/50 p-2.5">
+        <p className="flex items-center gap-1.5 px-0.5 text-[10px] font-semibold uppercase tracking-wider text-dim">
+          <Users className="h-3 w-3" />
+          {others.length === 1 ? "Also logged by" : `${dispute.claimants.length} people logged this`}
+        </p>
+        {others.map((claimant) => (
+          <div key={claimant.id} className="flex items-center gap-2.5">
+            <UserAvatar name={claimant.full_name} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-frost">{claimant.full_name}</p>
+              {claimant.email && <p className="truncate text-[11px] text-dim">{claimant.email}</p>}
+            </div>
+            {claimant.withdrawn ? (
+              <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-good">
+                <Check className="h-3 w-3" /> stepped back
+              </span>
+            ) : (
+              <span className="shrink-0 text-[11px] text-mist">still claiming</span>
+            )}
+          </div>
+        ))}
+        {dispute.claimants.length > 2 && (
+          <p className="px-0.5 pt-0.5 text-[11px] text-mist">{disputeProgress(dispute)}</p>
+        )}
       </div>
 
       {dispute.status === "PENDING" && (
@@ -78,45 +100,32 @@ export function DisputeCard({
         >
           <Clock className="h-3.5 w-3.5" />
           {dispute.hours_remaining > 0
-            ? `${disputeCountdown(dispute)} — both of you forfeit this task if nobody acts`
-            : "The window has closed — this forfeits for both of you"}
+            ? `${disputeCountdown(dispute)} — if more than one of you is still claiming it by then, nobody is paid`
+            : "The window has closed — nobody is paid for this task"}
+          {dispute.extended && <span className="font-normal text-dim">(extended by an admin)</span>}
         </p>
       )}
 
       <div className="mt-3 space-y-3">
-        {action === "claim" && (
+        {action === "withdraw" && (
           <>
             <p className="text-sm text-mist">
-              If this task is yours, claim it. {other.full_name} then has to confirm before it
-              transfers.
+              {dispute.standing_count > 2
+                ? "If this task isn't yours, step back. It goes to whoever is left once everyone else has."
+                : `If this task isn't yours, step back and it goes to ${
+                    others[0]?.full_name ?? "the other claimant"
+                  }.`}{" "}
+              You can take that back while the window is open.
             </p>
-            <Button size="sm" disabled={pending} onClick={() => onClaim(dispute)}>
-              <Handshake className="h-3.5 w-3.5" /> Claim this task
-            </Button>
-          </>
-        )}
-
-        {action === "waiting" && (
-          <p className="rounded-lg border border-line bg-ink2/50 px-3 py-2.5 text-sm text-mist">
-            You claimed this {formatRelative(dispute.claimed_at)}. It resolves once{" "}
-            {other.full_name} confirms — you can't confirm your own claim.
-          </p>
-        )}
-
-        {action === "confirm" && (
-          <>
-            <p className="text-sm text-mist">
-              {other.full_name} claimed this task {formatRelative(dispute.claimed_at)}. Confirming
-              transfers it to them and forfeits your entry. You can undo it afterwards, as long as
-              the window is still open and neither entry has been invoiced.
-            </p>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={pending}
-              onClick={() => onConfirm(dispute)}
-            >
-              Confirm transfer to {other.full_name.split(" ")[0]}
+            {dispute.involves_billed_work && (
+              <p className="rounded-lg border border-warn/40 bg-warn/10 px-3 py-2 text-xs text-warn">
+                This task has already been paid on an invoice. Stepping back means the amount is
+                recovered from your next invoice — an admin has to approve that first, and you'll
+                see it before it applies.
+              </p>
+            )}
+            <Button size="sm" variant="outline" disabled={pending} onClick={() => onWithdraw(dispute)}>
+              <HandCoins className="h-3.5 w-3.5" /> Step back from this task
             </Button>
           </>
         )}
@@ -124,35 +133,41 @@ export function DisputeCard({
         {action === "revoke" && (
           <>
             <p className="rounded-lg border border-line bg-ink2/50 px-3 py-2.5 text-sm text-mist">
-              You transferred this to {other.full_name} on {formatDate(dispute.resolved_at)}. If
-              that was a mistake, undoing it reopens the dispute — {disputeCountdown(dispute)} —
-              and either of you can claim it again.
+              You stepped back from this task. If that was a mistake, taking it back reopens the
+              dispute — {disputeCountdown(dispute)}.
             </p>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={pending}
-              onClick={() => onRevoke(dispute)}
-            >
-              <Undo2 className="h-3.5 w-3.5" /> Undo this transfer
+            <Button size="sm" variant="outline" disabled={pending} onClick={() => onRevoke(dispute)}>
+              <Undo2 className="h-3.5 w-3.5" /> Claim it again
             </Button>
           </>
+        )}
+
+        {action === "waiting" && (
+          <p className="rounded-lg border border-line bg-ink2/50 px-3 py-2.5 text-sm text-mist">
+            {dispute.can_revoke === false && dispute.can_withdraw === false
+              ? "This task has already been billed, so it can't be changed here. Raise it with an admin."
+              : `Waiting on ${
+                  dispute.standing_count - 1 === 1 ? "the other claimant" : "the other claimants"
+                }.`}
+          </p>
         )}
 
         {action === "none" && dispute.status !== "PENDING" && (
           <p className="flex items-start gap-1.5 text-sm text-mist">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-dim" />
             {dispute.status === "RESOLVED"
-              ? `Awarded to ${dispute.resolved_owner?.full_name ?? "the claimant"} on ${formatDate(
-                  dispute.resolved_at,
-                )}.${
-                  dispute.resolved_owner?.id === currentUserId
-                    ? ""
-                    : " The window has closed, so this is final."
-                }`
-              : `Forfeited on ${formatDate(
-                  dispute.forfeited_at,
-                )} — neither party is paid for this task.`}
+              ? `${youWon ? "Yours" : `Went to ${dispute.resolved_owner?.full_name ?? "another claimant"}`} on ${formatDate(dispute.resolved_at)}.`
+              : `Forfeited on ${formatDate(dispute.forfeited_at)} — nobody is paid for this task.`}
+          </p>
+        )}
+
+        {dispute.adjudicated_at && (
+          <p className="flex items-start gap-1.5 rounded-lg border border-line bg-ink2/50 px-3 py-2.5 text-xs text-mist">
+            <Gavel className="mt-0.5 h-3.5 w-3.5 shrink-0 text-dim" />
+            <span>
+              Ruled on by {dispute.adjudicated_by?.full_name ?? "an administrator"}{" "}
+              {formatRelative(dispute.adjudicated_at)}. {dispute.adjudication_reason}
+            </span>
           </p>
         )}
       </div>

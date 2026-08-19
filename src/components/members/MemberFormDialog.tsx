@@ -100,6 +100,11 @@ export function MemberFormDialog({
     if (!values.email.trim()) return setError("Enter an email address.");
     if (!member && values.password.length < 8)
       return setError("Set a starting password of at least 8 characters.");
+    if (values.payment_rate > 0 && values.payment_rate < 1)
+      return setError(
+        `A payment rate of ${values.payment_rate}% is almost certainly a mistake — enter ` +
+          `${values.payment_rate * 100} for ${values.payment_rate * 100}%.`,
+      );
     if (values.payment_rate < 0 || values.payment_rate > 100)
       return setError("The payment rate is a percentage between 0 and 100.");
     setError("");
@@ -181,7 +186,23 @@ export function MemberFormDialog({
             step="0.1"
             value={values.payment_rate || ""}
             onChange={(event) => set("payment_rate", Number(event.target.value))}
-            hint="Their revenue share, applied to invoices by default."
+            hint={
+              // Spelling out the arithmetic beats any validator: the failure
+              // mode here is entering 0.25 for 25%, which is a perfectly valid
+              // number and silently pays a fortieth of what was intended.
+              values.payment_rate > 0 ? (
+                <>
+                  Enter <span className="text-frost">25</span> for 25%, not 0.25. At{" "}
+                  {values.payment_rate}%, a $100 invoice pays{" "}
+                  <span className="text-frost">
+                    ${((values.payment_rate / 100) * 100).toFixed(2)}
+                  </span>
+                  .
+                </>
+              ) : (
+                "Their revenue share as a whole percentage — enter 25 for 25%, not 0.25."
+              )
+            }
           />
         </FormGrid>
 

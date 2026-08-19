@@ -1,11 +1,13 @@
 import {
   AlertTriangle,
   BookOpen,
+  Copy,
   FileText,
   FolderKanban,
   LayoutDashboard,
   ListChecks,
   Receipt,
+  Scale,
   Settings,
   Upload,
   Users,
@@ -53,12 +55,14 @@ export const ADMIN_NAV: NavSection[] = [
       { label: "Members", to: "/admin/members", icon: Users },
       { label: "Task log", to: "/admin/tasks", icon: ListChecks },
       { label: "Disputes", to: "/admin/disputes", icon: AlertTriangle, badgeKey: "disputes" },
+      { label: "Duplicates", to: "/admin/duplicates", icon: Copy },
     ],
   },
   {
     title: "Billing & files",
     items: [
       { label: "Invoicing", to: "/admin/invoices", icon: FileText },
+      { label: "Adjustments", to: "/admin/adjustments", icon: Scale },
       { label: "Resources", to: "/admin/resources", icon: BookOpen },
     ],
   },

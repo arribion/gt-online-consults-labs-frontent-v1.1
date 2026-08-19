@@ -1,5 +1,6 @@
 import { apiClient, cleanParams } from "./api";
 import type {
+  DuplicateFilters,
   DuplicateLogReport,
   TaskEntry,
   TaskEntryCreate,
@@ -10,8 +11,12 @@ import type {
 
 export const tasksService = {
   /**
-   * Bulk import. The whole file is rejected if any row fails to parse or a
-   * required header is missing — nothing posts partially.
+   * Bulk import.
+   *
+   * The whole file is rejected if any row fails to parse, a required header is
+   * missing, or a row repeats a task you have already logged — nothing posts
+   * partially. A row colliding with *another* tasker is not a failure: it
+   * opens or joins a dispute, and the rest of the file still lands.
    */
   import: async (
     file: File,
@@ -55,8 +60,13 @@ export const tasksService = {
     return data;
   },
 
-  /** Admin: log of skipped duplicate uploads, with a per-tasker count. */
-  duplicates: async (filters: { taskerId?: string; projectId?: string } = {}) => {
+  /**
+   * Admin: every rejected duplicate-upload attempt, with a per-tasker count.
+   *
+   * These rows are the reason duplicates are rejected rather than skipped —
+   * a silently dropped row hid exactly the pattern this is here to surface.
+   */
+  duplicates: async (filters: DuplicateFilters = {}) => {
     const { data } = await apiClient.get<DuplicateLogReport>("/tasks/duplicates", {
       params: cleanParams(filters),
     });

@@ -1,8 +1,14 @@
 import { apiClient, cleanParams, downloadFile } from "./api";
-import type { ConfirmDisputeRequest, Dispute, DisputeFilters } from "@/types";
+import type {
+  AdjudicateDisputeRequest,
+  Dispute,
+  DisputeFilters,
+  ExtendDisputeRequest,
+  WithdrawRequest,
+} from "@/types";
 
 export const disputesService = {
-  /** The signed-in tasker's disputes, either side of them. */
+  /** Every dispute the signed-in tasker is a claimant in. */
   mine: async (): Promise<Dispute[]> => {
     const { data } = await apiClient.get<Dispute[]>("/disputes/mine");
     return data;
@@ -16,29 +22,42 @@ export const disputesService = {
     return data;
   },
 
-  /** Claim ownership; the other party then has to confirm for it to resolve. */
-  claim: async (disputeId: string): Promise<Dispute> => {
-    const { data } = await apiClient.post<Dispute>(`/disputes/${disputeId}/claim`);
-    return data;
-  },
-
   /**
-   * The non-claiming party confirms the transfer. Naming both the task and the
-   * recipient is deliberate — it stops a confirm landing on the wrong dispute.
+   * Give up your claim. Once you are the only claimant who has *not* withdrawn,
+   * the task is yours; until then it belongs to nobody. Naming the task is
+   * deliberate — withdrawing gives up payment for it, and a mis-click on the
+   * wrong row should not be able to do that quietly.
    */
-  confirm: async (disputeId: string, payload: ConfirmDisputeRequest): Promise<Dispute> => {
-    const { data } = await apiClient.post<Dispute>(`/disputes/${disputeId}/confirm`, payload);
+  withdraw: async (disputeId: string, payload: WithdrawRequest): Promise<Dispute> => {
+    const { data } = await apiClient.post<Dispute>(`/disputes/${disputeId}/withdraw`, payload);
     return data;
   },
 
   /**
-   * Undo a confirmation: the dispute goes back to PENDING with no claim, so
-   * either party can claim it again. Only the confirming party may do this,
-   * only inside the 5-day window, and only while neither entry is invoiced —
-   * all enforced server-side; `dispute.can_revoke` mirrors the answer.
+   * Take your claim back. Only your own withdrawal can be revoked, only while
+   * the window is open, and only while no entry has been billed — all enforced
+   * server-side; `dispute.can_revoke` mirrors the answer.
    */
   revoke: async (disputeId: string): Promise<Dispute> => {
     const { data } = await apiClient.post<Dispute>(`/disputes/${disputeId}/revoke`);
+    return data;
+  },
+
+  /**
+   * ADMIN: buy the claimants more time. The only intervention allowed while a
+   * dispute is live, because it is the only one that decides nothing.
+   */
+  extend: async (disputeId: string, payload: ExtendDisputeRequest): Promise<Dispute> => {
+    const { data } = await apiClient.post<Dispute>(`/disputes/${disputeId}/extend`, payload);
+    return data;
+  },
+
+  /**
+   * SUPERADMIN: rule on a dispute that expired without agreement. Refused
+   * while the window is open — the claimants own that period.
+   */
+  adjudicate: async (disputeId: string, payload: AdjudicateDisputeRequest): Promise<Dispute> => {
+    const { data } = await apiClient.post<Dispute>(`/disputes/${disputeId}/adjudicate`, payload);
     return data;
   },
 

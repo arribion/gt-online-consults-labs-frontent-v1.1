@@ -32,6 +32,8 @@ const AdminProjects = lazy(() => import("@/routes/admin/Projects"));
 const AdminMembers = lazy(() => import("@/routes/admin/Members"));
 const AdminTaskLog = lazy(() => import("@/routes/admin/TaskLog"));
 const AdminDisputes = lazy(() => import("@/routes/admin/Disputes"));
+const AdminDuplicates = lazy(() => import("@/routes/admin/Duplicates"));
+const AdminAdjustments = lazy(() => import("@/routes/admin/Adjustments"));
 const AdminInvoicing = lazy(() => import("@/routes/admin/Invoicing"));
 const AdminResources = lazy(() => import("@/routes/admin/Resources"));
 const AdminSettings = lazy(() => import("@/routes/admin/Settings"));
@@ -76,7 +78,9 @@ const App = () => (
           <Route path="members" element={<AdminMembers />} />
           <Route path="tasks" element={<AdminTaskLog />} />
           <Route path="disputes" element={<AdminDisputes />} />
+          <Route path="duplicates" element={<AdminDuplicates />} />
           <Route path="invoices" element={<AdminInvoicing />} />
+          <Route path="adjustments" element={<AdminAdjustments />} />
           <Route path="invoices/:invoiceId" element={<InvoiceDetail />} />
           <Route path="resources" element={<AdminResources />} />
           <Route path="settings" element={<AdminSettings />} />

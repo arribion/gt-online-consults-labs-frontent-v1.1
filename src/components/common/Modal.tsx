@@ -92,6 +92,7 @@ export function ConfirmDialog({
   confirmLabel,
   onConfirm,
   pending,
+  disabled,
   tone = "danger",
 }: {
   open: boolean;
@@ -101,6 +102,8 @@ export function ConfirmDialog({
   confirmLabel: string;
   onConfirm: () => void;
   pending?: boolean;
+  /** Hold the action back until the dialog's own input is valid. */
+  disabled?: boolean;
   tone?: "danger" | "default";
 }) {
   return (
@@ -113,7 +116,7 @@ export function ConfirmDialog({
         <Button
           variant={tone === "danger" ? "destructive" : "default"}
           onClick={onConfirm}
-          disabled={pending}
+          disabled={pending || disabled}
         >
           {pending ? "Working…" : confirmLabel}
         </Button>

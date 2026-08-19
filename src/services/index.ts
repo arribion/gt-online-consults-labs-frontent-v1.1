@@ -11,6 +11,8 @@ export { projectsService } from "./projects.service";
 export { assignmentsService } from "./assignments.service";
 export { tasksService } from "./tasks.service";
 export { disputesService } from "./disputes.service";
+export { adjustmentsService } from "./adjustments.service";
+export { notificationsService } from "./notifications.service";
 export { invoicesService } from "./invoices.service";
 export { resourcesService } from "./resources.service";
 export { healthService } from "./health.service";

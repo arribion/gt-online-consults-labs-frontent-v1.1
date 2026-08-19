@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, Download, ShieldCheck, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Download, Gavel, ShieldCheck, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AsyncSection,
@@ -15,13 +15,20 @@ import {
   StatusBadge,
   type Column,
 } from "@/components/common";
+import {
+  AdjudicateDisputeDialog,
+  ExtendDisputeDialog,
+} from "@/components/disputes/DisputeAdminDialogs";
 import { useAsync, useMutation } from "@/hooks/useAsync";
+import { useAuth } from "@/hooks/useAuth";
 import { useAllProjects, useMembers } from "@/hooks/useLookups";
 import { disputesService } from "@/services";
 import { formatDate, truncate } from "@/lib/format";
 import {
   DISPUTE_STATUSES,
+  awaitsAdjudication,
   disputeCountdown,
+  disputeProgress,
   disputeUrgency,
   type Dispute,
   type DisputeStatus,
@@ -33,15 +40,26 @@ const STATUS_OPTIONS = DISPUTE_STATUSES.map((value) => ({
 }));
 
 /**
- * Admin view of every dispute.
+ * Admin view of every contested task.
  *
- * Admins can't resolve a dispute — only the two parties can, by claim and
- * confirm — so this page is about visibility and chasing: who's involved, how
- * long is left, and a PDF of the current filter to take into a conversation.
+ * The powers here are deliberately narrow. While a dispute is live the
+ * claimants own it and an admin can only buy them more time — stepping in to
+ * pick a winner would be the unilateral call the whole withdrawal handshake
+ * exists to prevent. Once the window has closed and everything has forfeited,
+ * a superadmin can rule on it, because otherwise a claimant who left the
+ * company or a mistyped task ID is a permanent loss with no recourse.
+ *
+ * The awaiting-a-ruling queue matters more than it looks: a late claimant gets
+ * no extension, so three-way collisions land here as a matter of course rather
+ * than as an exception.
  */
 export default function AdminDisputes() {
+  const { user } = useAuth();
   const { options: projectOptions, nameById: projectNames } = useAllProjects();
   const { taskerOptions } = useMembers();
+  const [extending, setExtending] = useState<Dispute | null>(null);
+  const [ruling, setRuling] = useState<Dispute | null>(null);
+  const isSuperadmin = user?.role === "SUPERADMIN";
 
   const [status, setStatus] = useState("");
   const [projectId, setProjectId] = useState("");
@@ -75,6 +93,7 @@ export default function AdminDisputes() {
       expiring: data.filter(
         (dispute) => dispute.status === "PENDING" && dispute.days_remaining <= 2,
       ).length,
+      awaiting: data.filter(awaitsAdjudication).length,
     }),
     [data],
   );
@@ -99,13 +118,22 @@ export default function AdminDisputes() {
     },
     {
       key: "parties",
-      header: "Between",
-      sortValue: (dispute) => dispute.user_1.full_name,
+      header: "Claimants",
+      sortValue: (dispute) => dispute.claimants[0]?.full_name ?? "",
       cell: (dispute) => (
-        <span className="text-sm">
-          {dispute.user_1.full_name} <span className="text-dim">vs</span>{" "}
-          {dispute.user_2.full_name}
-        </span>
+        // A dispute holds any number of claimants, so they are listed rather
+        // than squeezed into a fixed "X vs Y".
+        <div className="text-sm">
+          {dispute.claimants.map((claimant) => (
+            <span key={claimant.id} className="mr-1.5 whitespace-nowrap">
+              {claimant.full_name}
+              {claimant.withdrawn && <span className="text-dim"> (out)</span>}
+            </span>
+          ))}
+          {dispute.claimants.length > 2 && (
+            <p className="text-[11px] text-dim">{disputeProgress(dispute)}</p>
+          )}
+        </div>
       ),
     },
     {
@@ -116,15 +144,18 @@ export default function AdminDisputes() {
       cell: (dispute) => <StatusBadge status={dispute.status} size="sm" />,
     },
     {
-      key: "claimed",
-      header: "Claimed by",
-      sortValue: (dispute) => dispute.claimed_by?.full_name ?? "",
-      cell: (dispute) =>
-        dispute.claimed_by ? (
-          <span className="text-sm">{dispute.claimed_by.full_name}</span>
-        ) : (
-          <span className="text-xs text-dim">Nobody yet</span>
-        ),
+      key: "outcome",
+      header: "Outcome",
+      sortValue: (dispute) => dispute.resolved_owner?.full_name ?? "",
+      cell: (dispute) => {
+        if (dispute.resolved_owner) {
+          return <span className="text-sm">{dispute.resolved_owner.full_name}</span>;
+        }
+        if (awaitsAdjudication(dispute)) {
+          return <span className="text-xs font-semibold text-warn">Awaiting a ruling</span>;
+        }
+        return <span className="text-xs text-dim">Still contested</span>;
+      },
     },
     {
       key: "raised_at",
@@ -162,6 +193,21 @@ export default function AdminDisputes() {
         );
       },
     },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      cell: (dispute) =>
+        dispute.status === "PENDING" ? (
+          <Button size="sm" variant="ghost" onClick={() => setExtending(dispute)}>
+            <Timer className="h-3.5 w-3.5" /> Extend
+          </Button>
+        ) : awaitsAdjudication(dispute) && isSuperadmin ? (
+          <Button size="sm" variant="outline" onClick={() => setRuling(dispute)}>
+            <Gavel className="h-3.5 w-3.5" /> Rule
+          </Button>
+        ) : null,
+    },
   ];
 
   const activeFilters = [status, projectId, taskerId, from, to].filter(Boolean).length;
@@ -171,7 +217,7 @@ export default function AdminDisputes() {
       <PageHeader
         eyebrow="Operations"
         title="Disputes"
-        description="Two taskers logged the same task ID on the same project. Only the two parties can settle it — a claim followed by the other's confirmation."
+        description="More than one tasker logged the same task ID on the same project. The claimants settle it themselves by stepping back; you can give them more time, and rule on it only once the window has closed."
         actions={
           <Button variant="outline" disabled={exporting || !data.length} onClick={() => void exportPdf()}>
             <Download className="h-4 w-4" /> {exporting ? "Preparing…" : "Export PDF"}
@@ -181,7 +227,7 @@ export default function AdminDisputes() {
 
       <StatGrid className="lg:grid-cols-4">
         <StatCard
-          label="Pending"
+          label="Contested"
           value={counts.pending}
           tone={counts.pending ? "warn" : "default"}
           icon={AlertTriangle}
@@ -190,10 +236,16 @@ export default function AdminDisputes() {
           label="Expiring in 2 days"
           value={counts.expiring}
           tone={counts.expiring ? "bad" : "default"}
-          hint="Both parties forfeit if nobody acts"
+          hint="Nobody is paid if more than one is still claiming"
         />
-        <StatCard label="Resolved" value={counts.resolved} tone="good" icon={CheckCircle2} />
-        <StatCard label="Forfeited" value={counts.forfeited} tone="bad" icon={XCircle} />
+        <StatCard
+          label="Awaiting a ruling"
+          value={counts.awaiting}
+          tone={counts.awaiting ? "warn" : "default"}
+          hint={isSuperadmin ? "You can award or void these" : "A superadmin can settle these"}
+          icon={Gavel}
+        />
+        <StatCard label="Settled" value={counts.resolved} tone="good" icon={CheckCircle2} />
       </StatGrid>
 
       <Panel className="space-y-4">
@@ -257,6 +309,17 @@ export default function AdminDisputes() {
           />
         </AsyncSection>
       </Panel>
+
+      <ExtendDisputeDialog
+        dispute={extending}
+        onClose={() => setExtending(null)}
+        onDone={() => void refetch()}
+      />
+      <AdjudicateDisputeDialog
+        dispute={ruling}
+        onClose={() => setRuling(null)}
+        onDone={() => void refetch()}
+      />
     </>
   );
 }
