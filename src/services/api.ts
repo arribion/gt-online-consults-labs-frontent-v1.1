@@ -1,13 +1,13 @@
 import axios, { AxiosError, type AxiosRequestConfig, type AxiosInstance } from "axios";
 import type { ApiEnvelope } from "@/types";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = (import.meta.env.VITE_BASE_URL || "").replace(/\/+$/, "");
 
 if (!BASE_URL) {
   console.error("VITE_BASE_URL is missing — set it in client/.env before starting the app.");
 }
 
-export const API_ROOT = `${BASE_URL ?? ""}/api/v1`;
+export const API_ROOT = `${BASE_URL}/api/v1`;
 
 /**
  * The one HTTP client in the app.
