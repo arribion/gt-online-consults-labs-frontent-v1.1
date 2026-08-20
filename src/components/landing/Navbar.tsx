@@ -6,9 +6,8 @@ import { useAuth } from "../../hooks/useAuth";
 import { HOME_FOR_ROLE } from "../../constants/navigation";
 
 const links = [
-  { label: "Home", href: "#features" },
   { label: "For Talents", href: "#features" },
-  { label: "For Campanies", href: "#features" },
+  { label: "For Companies", href: "#features" },
   { label: "Resources", href: "#how" },
   { label: "Our Process", href: "#workflow" },
   { label: "About Us", href: "#pricing" },
@@ -36,15 +35,17 @@ export default function Navbar() {
         }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
-        <Logo />
+        <Link to="/">
+          <Logo />
+        </Link>
 
+        {/* Desktop Navigation */}
         <nav className="hidden items-center gap-7 lg:flex">
-          {links.map((l) => (
+          {links.map((l, _index) => (
             <a
               key={l.label}
               href={l.href}
-              className="group relative text-sm font-medium text-slate-300 transition-colors hover:text-frost"
-            >
+              className="group relative text-sm font-medium text-slate-300 transition-colors hover:text-frost">
               {l.label}
               <span className="absolute -bottom-1.5 left-0 h-0.5 w-0 rounded bg-sky2 transition-all duration-300 group-hover:w-full" />
             </a>
@@ -80,8 +81,7 @@ export default function Navbar() {
         <button
           onClick={() => setOpen((v) => !v)}
           className="grid h-10 w-10 place-items-center rounded-lg border border-line text-frost lg:hidden"
-          aria-label="Toggle menu"
-        >
+          aria-label="Toggle menu">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
@@ -91,13 +91,12 @@ export default function Navbar() {
           }`}
       >
         <nav className="flex flex-col gap-1 px-5 py-4">
-          {links.map((l) => (
+          {links.map((l, _index) => (
             <a
               key={l.label}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-mist hover:bg-panel hover:text-frost"
-            >
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-mist hover:bg-panel hover:text-frost">
               {l.label}
             </a>
           ))}

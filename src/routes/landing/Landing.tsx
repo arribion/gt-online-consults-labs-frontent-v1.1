@@ -4,7 +4,7 @@ import Benefits from "../../components/landing/Benefits";
 import Showcase from "../../components/landing/Showcase";
 import Pricing from "../../components/landing/Pricing";
 import Testimonials from "../../components/landing/Testimonials";
-import Footer from "../../components/landing/Footer";
+import CallToAction from "../../components/landing/CallToAction";
 
 export default function Landing() {
   return (
@@ -17,8 +17,8 @@ export default function Landing() {
         <Showcase />
         <Pricing />
         <Testimonials />
+        <CallToAction/>
       </main>
-      <Footer />
     </div>
   );
 }

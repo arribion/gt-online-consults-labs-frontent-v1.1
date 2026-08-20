@@ -21,16 +21,7 @@ import {
 } from "lucide-react";
 import { Reveal, Avatar, Stars } from "./ui";
 import { useCountUp } from "../../hooks/hooks";
-
-// image icons
-import openAI from "../../assets/icons/open-ai.png"
-import brex from "../../assets/icons/brex.png";
-import shopify from "../../assets/icons/shopfy.png";
-import deel from "../../assets/icons/deel.png";
-import remote from "../../assets/icons/remote.png";
-import sumsub from "../../assets/icons/sumsub.png";
-import github from "../../assets/icons/github.png";
-import canva from "../../assets/icons/canva.png";
+import TrustedByCarousel from "./TrustedCarosel";
 
 /* ================= dashboard mockup ================= */
 function DashboardMock() {
@@ -130,12 +121,16 @@ function FeaturePanel() {
   return (
     <div className="rounded-2xl border border-line2/70 bg-panel/90 p-5 shadow-[0_24px_70px_-30px_rgba(10,60,140,0.8)] backdrop-blur">
       <div className="flex items-center justify-between">
-        <p className="font-display text-sm font-bold text-sky2">In-Demand Talents</p>
+        <p className="font-display text-sm font-bold text-sky2">
+          In-Demand Talents
+        </p>
         <Users className="h-4 w-4 text-mist" />
       </div>
       <ul className="mt-4 space-y-3">
         {aiFeatures.map((f) => (
-          <li key={f.label} className="group flex items-center gap-3 text-[13px] font-medium text-frost/90">
+          <li
+            key={f.label}
+            className="group flex items-center gap-3 text-[13px] font-medium text-frost/90">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-line2/60 bg-ink2 text-sky2 transition-colors group-hover:border-azure/60 group-hover:bg-azure/10">
               <f.icon className="h-4 w-4" />
             </span>
@@ -143,7 +138,9 @@ function FeaturePanel() {
           </li>
         ))}
       </ul>
-      <a href="#features" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-sky2 hover:text-ice">
+      <a
+        href="/in-demand"
+        className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-sky2 hover:text-ice">
         Explore all Talents <ArrowRight className="h-3.5 w-3.5" />
       </a>
     </div>
@@ -224,17 +221,6 @@ function QuoteRotator() {
   );
 }
 
-/* ================= trusted-by wordmarks ================= */
-const brands = [
-  { icon: openAI, name: "" },
-  { icon: brex, name: "" },
-  { icon: shopify, name: "" },
-  { icon: deel, name: "" },
-  { icon: sumsub, name: "" },
-  { icon: remote, name: "" },
-  { icon: github, name: "" },
-  { icon: canva, name: "" },
-];
 
 /* ================= values strip ================= */
 const values = [
@@ -355,21 +341,7 @@ export default function Hero() {
         </div>
 
         {/* ---- row C: trusted by ---- */}
-        <Reveal className="mt-16">
-          <p className="text-center text-[11px] font-bold uppercase tracking-[0.3em] text-sky2/80">
-            Trusted by founders building at
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 rounded border border-line/60 bg-deep/50 px-6 py-5">
-            {brands.map((b, i) => (
-              <span
-                key={i}
-                className="flex items-center gap-2 text-sm font-bold text-mist/80 transition-colors hover:text-frost">
-                 <img src={b.icon} alt="max-w-[0.5em] w-4 h-4" />
-                {/* {b.name} */}
-              </span>
-            ))}
-          </div>
-        </Reveal>
+        <TrustedByCarousel/>
 
         {/* ---- row D: values ---- */}
         <Reveal className="mt-16 pb-20">
