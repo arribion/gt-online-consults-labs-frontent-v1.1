@@ -41,7 +41,7 @@ export default function Navbar() {
         <nav className="hidden items-center gap-7 lg:flex">
           {links.map((l) => (
             <a
-              key={l.href}
+              key={l.label}
               href={l.href}
               className="group relative text-sm font-medium text-slate-300 transition-colors hover:text-frost"
             >
@@ -93,7 +93,7 @@ export default function Navbar() {
         <nav className="flex flex-col gap-1 px-5 py-4">
           {links.map((l) => (
             <a
-              key={l.href}
+              key={l.label}
               href={l.href}
               onClick={() => setOpen(false)}
               className="rounded-lg px-3 py-2.5 text-sm font-medium text-mist hover:bg-panel hover:text-frost"

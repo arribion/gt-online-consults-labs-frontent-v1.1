@@ -360,9 +360,9 @@ export default function Hero() {
             Trusted by founders building at
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 rounded border border-line/60 bg-deep/50 px-6 py-5">
-            {brands.map((b) => (
+            {brands.map((b, i) => (
               <span
-                key={b.name}
+                key={i}
                 className="flex items-center gap-2 text-sm font-bold text-mist/80 transition-colors hover:text-frost">
                  <img src={b.icon} alt="max-w-[0.5em] w-4 h-4" />
                 {/* {b.name} */}

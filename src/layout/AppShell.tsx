@@ -16,7 +16,7 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
     <Link
       to="/"
       onClick={onNavigate}
-      className="flex items-center gap-2.5 rounded-lg px-1 py-1"
+      className="flex items-center gap-2.5 rounded-lg px-1 py-1 min-w-0"
       aria-label="GT Online Consults home"
     >
       <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-linear-to-br from-azure to-[#eff3f9] shadow-[0_8px_24px_-8px_rgba(47,157,255,0.7)]">
@@ -235,11 +235,11 @@ export function AppShell({ variant }: { variant: "tasker" | "admin" }) {
                 <Menu className="h-5 w-5" />
               </button>
 
-              <div className="lg:hidden">
+              <div className="lg:hidden min-w-0 flex-1">
                 <Brand />
               </div>
 
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto flex items-center gap-2 shrink-0">
                 <NotificationBell />
                 <AccountMenu />
               </div>

@@ -157,7 +157,6 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
-  overflow-x: hidden;
 }
 
 @layer base {
