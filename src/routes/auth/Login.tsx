@@ -25,7 +25,11 @@ export default function Login() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const originalTitle = document.title;
     document.title = "Sign in · GT Online Consults";
+    return () => {
+      document.title = originalTitle;
+    };
   }, []);
 
   if (isLoading) return <FullPageLoader label="Checking your session" />;
