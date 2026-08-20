@@ -8,7 +8,7 @@ import Footer from "../../components/landing/Footer";
 
 export default function Landing() {
   return (
-    <div className="relative min-h-screen font-body">
+    <div className="relative min-h-screen font-body overflow-x-hidden">
       <div className="ambient" />
       <Navbar />
       <main>
