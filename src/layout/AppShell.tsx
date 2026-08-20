@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, LogOut, Menu, ShieldCheck, User, X } from "lucide-react";
-import logo from "@/assets/gt-logo.png";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useOpenDisputeCount } from "@/hooks/useOpenDisputeCount";
@@ -175,7 +174,7 @@ export function AppShell({ variant }: { variant: "tasker" | "admin" }) {
         {/* rail: drawer below lg, fixed column from lg up */}
         <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-50 flex w-[268px] max-w-[85vw] flex-col border-r border-line bg-ink2/95 backdrop-blur transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
+            "fixed inset-y-0 left-0 z-50 flex w-67 max-w-[85vw] flex-col border-r border-line bg-ink2/95 backdrop-blur transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0",
             drawerOpen ? "translate-x-0" : "-translate-x-full",
           )}
           aria-label="Main navigation"

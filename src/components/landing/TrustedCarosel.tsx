@@ -32,9 +32,9 @@ export default function TrustedByCarousel() {
 
       {/* Main Container: Masks the overflowing logos */}
       <div className="relative flex w-full overflow-x-hidden rounded  py-5">
-        {/* Optional CSS Gradient Fades for a premium look */}
-        <div className="absolute inset-y-0 left-0 w-16 bg-linear-to-r from-deep/50 to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-16 bg-linear-to-l from-deep/50 to-transparent z-10 pointer-events-none" />
+        {/*Ends Gradient Fades */}
+        <div className="absolute inset-y-0 left-0 w-16 bg-linear-to-r from-[#050D1D] to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-16 bg-linear-to-l from-[#050D1D] to-transparent z-10 pointer-events-none" />
 
         {/* Moving Track */}
         <div

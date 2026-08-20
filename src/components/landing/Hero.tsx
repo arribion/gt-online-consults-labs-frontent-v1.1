@@ -3,13 +3,13 @@ import {
   ArrowRight,
   BellRing,
   CheckCircle2,
+  CircleCheckBig,
   FileText,
   Globe,
   LayoutDashboard,
   Lightbulb,
   ListTodo,
   Network,
-  PlayCircle,
   Quote,
   Rocket,
   Search,
@@ -283,7 +283,7 @@ export default function Hero() {
               <a
                 href="#how"
                 className="inline-flex items-center gap-2.5 rounded-xl border border-line2 bg-panel/50 px-6 py-3.5 text-sm font-bold text-frost transition-all hover:border-sky2/60 hover:bg-panel">
-                <PlayCircle className="h-4.5 w-4.5 text-sky2" />
+                <CircleCheckBig className="h-4.5 w-4.5 text-sky2" />
                 Hire Top Talents
               </a>
             </div>
@@ -341,7 +341,7 @@ export default function Hero() {
         </div>
 
         {/* ---- row C: trusted by ---- */}
-        <TrustedByCarousel/>
+        <TrustedByCarousel />
 
         {/* ---- row D: values ---- */}
         <Reveal className="mt-16 pb-20">
