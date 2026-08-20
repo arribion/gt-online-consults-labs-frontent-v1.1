@@ -341,7 +341,7 @@ export default function Hero() {
         </div>
 
         {/* ---- row C: trusted by ---- */}
-         <TrustedByCarousel />
+        <TrustedByCarousel/>
 
         {/* ---- row D: values ---- */}
         <Reveal className="mt-16 pb-20">

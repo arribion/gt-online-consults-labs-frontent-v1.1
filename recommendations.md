@@ -123,9 +123,9 @@ export const projectsService = {
 - **Missing Credentials on Certain Calls**: `ManageProjects.tsx` and `ProjectUploadForm.tsx` omit `withCredentials: true`, which can lead to session authentication failing silently on those requests.
 
 #### Proposed Solution
-- [ ] Remove `src/context/AuthContext.tsx` to prevent developer confusion.
-- [ ] Strip out dead `localStorage.getItem("authToken")` interceptor logic.
-- [ ] Ensure all API requests route through the shared `apiClient` where `withCredentials: true` is universally enforced.
+- [x] Remove `src/context/AuthContext.tsx` to prevent developer confusion.
+- [x] Strip out dead `localStorage.getItem("authToken")` interceptor logic.
+- [x] Ensure all API requests route through the shared `apiClient` where `withCredentials: true` is universally enforced.
 
 ---
 
@@ -139,10 +139,10 @@ export const projectsService = {
 - **Legacy ID Field Shapes**: Some types still specify MongoDB-style `_id`, whereas the API standardizes on UUID `id`.
 
 #### Proposed Solution
-- [ ] Establish `src/types/` as the single source of truth for domain models.
-- [ ] Standardize all primary identifiers to `id: string` (UUID).
-- [ ] Remove `src/types/role.ts` and consolidate role definitions under `src/types/members.ts` (or `src/types/auth.ts`).
-- [ ] Remove duplicate type declarations from `src/types/task.ts` and import shared types from `src/types/members.ts` and `src/types/projectAssignment.ts`.
+- [x] Establish `src/types/` as the single source of truth for domain models.
+- [x] Standardize all primary identifiers to `id: string` (UUID).
+- [x] Remove `src/types/role.ts` and consolidate role definitions under `src/types/members.ts` (or `src/types/auth.ts`).
+- [x] Remove duplicate type declarations from `src/types/task.ts` and import shared types from `src/types/members.ts` and `src/types/projectAssignment.ts`.
 
 #### Target Type Structure Example
 ```typescript
@@ -229,11 +229,11 @@ flagging it here instead.
 now `SUPERADMIN | ADMIN | TASKER` — `MANAGER` was never produced by any real
 flow and has been dropped; `SUPERADMIN` is new.
 
-- [ ] Update `MemberRole` (all three declarations — see PR 3 above about
+- [x] Update `MemberRole` (all three declarations — see PR 3 above about
       consolidating them into one) to `"TASKER" | "ADMIN" | "SUPERADMIN"`.
-- [ ] Update `MemberForm.tsx`'s role `<select>` to offer `SUPERADMIN` instead
+- [x] Update `MemberForm.tsx`'s role `<select>` to offer `SUPERADMIN` instead
       of `MANAGER`, gated appropriately (see next point).
-- [ ] `ProtectedRoute.tsx`'s `allowedRoles` prop is typed
+- [x] `ProtectedRoute.tsx`'s `allowedRoles` prop is typed
       `("TASKER" | "ADMIN")[]` — extend to include `"SUPERADMIN"` once there's
       a superadmin-facing route to protect.
 
@@ -250,15 +250,15 @@ Account creation now goes exclusively through the already-existing
 `full_name`/`email`/`password`/`role`/`phone`/`status` shape `MemberForm.tsx`
 already sends — so this should be close to a one-line endpoint swap:
 
-- [ ] In `MemberForm.tsx`, change the create-member call from
+- [x] In `MemberForm.tsx`, change the create-member call from
       `api.post("/api/v1/auth/register", …)` to
       `api.post("/api/v1/members", …)` (the update path already correctly
       uses `PUT /api/v1/members/{id}`).
-- [ ] `POST /api/v1/members` now requires the caller to be authenticated as
+- [x] `POST /api/v1/members` now requires the caller to be authenticated as
       `ADMIN` or `SUPERADMIN` (cookie-based, so this should just work given
       `withCredentials: true` is already set — but worth confirming in
       testing).
-- [ ] Role-tier rule to reflect in the UI: an `ADMIN` caller can only create
+- [x] Role-tier rule to reflect in the UI: an `ADMIN` caller can only create
       `TASKER` accounts — attempting to create/edit an `ADMIN` or
       `SUPERADMIN` account returns `403`. Only `SUPERADMIN` can manage
       `ADMIN`/`SUPERADMIN` accounts. Consider hiding the `ADMIN`/`SUPERADMIN`
@@ -275,13 +275,13 @@ project instead: it purges the project's Cloudinary resources, sets
 data untouched. Taskers still see the project, now showing status
 "Deactivated".
 
-- [ ] `ManageProjects.tsx`'s delete-confirmation copy/toast should say
+- [x] `ManageProjects.tsx`'s delete-confirmation copy/toast should say
       "deactivate" rather than "delete" — the current wording will be
       misleading now that the row isn't actually removed.
-- [ ] Anywhere that renders `project.status`, add a `"DEACTIVATED"` case to
+- [x] Anywhere that renders `project.status`, add a `"DEACTIVATED"` case to
       the status badge/label logic (project status enum is now `DRAFT |
       PENDING | ACTIVE | PAUSED | CLOSED | DEACTIVATED`).
-- [ ] `ManageProjects.tsx` likely removes the row from its local list on a
+- [x] `ManageProjects.tsx` likely removes the row from its local list on a
       successful delete — since the project still exists (just deactivated),
       confirm whether it should instead re-fetch/update the row's status in
       place.
@@ -337,17 +337,26 @@ like?" without waiting on this doc.
 
 ## 4c. Reviewer Checklist & Discussion Points
 
-Please review the proposed structure and confirm:
+**Answered 2026-08-19** — these were open questions; here's how each was
+resolved in the implementation. See §7 below.
 
-- [ ] **Deprecation of `src/context/AuthContext.tsx`**: Can you confirm no untracked dependencies rely on this file before it is deleted?
-- [ ] **Service Layer Structure**: Does the modular `src/services/<domain>.service.ts` layout align with your preferred architecture, or would you prefer a single consolidated services file?
-- [ ] **Credential Issues in Forms**: Have you noticed authentication issues in `ManageProjects.tsx` or `ProjectUploadForm.tsx` that will be resolved by enforcing `withCredentials: true`?
-- [ ] **PR Sequencing**: Are you happy to proceed in the proposed 4-stage PR sequence?
-- [ ] **§4a urgency**: The `/auth/register` removal breaks `MemberForm.tsx`'s
-      create-member flow as soon as this backend change deploys — treat that
-      one endpoint swap as higher priority than the 4-PR sequence above, even
-      if the rest of §4a's cleanup (role types, deactivate copy) rides along
-      with PR 3 / PR 1 respectively.
+- **Deprecation of `src/context/AuthContext.tsx`** — confirmed unused
+  (nothing in `src/` imported it) and deleted. `src/context/CurrencyContext.tsx`
+  turned out to be dead too, and went with it.
+- **Service Layer Structure** — went with the modular
+  `src/services/<domain>.service.ts` layout as proposed, over one consolidated
+  file. Nine domain services over a single shared axios instance.
+- **Credential Issues in Forms** — moot now: every request goes through the one
+  `apiClient`, which sets `withCredentials: true` globally, so
+  `ManageProjects.tsx`/`ProjectUploadForm.tsx` can no longer omit it.
+- **PR Sequencing** — *not* followed. The 4-PR sequence assumed incremental
+  refactoring of the existing screens; the work ended up being a rebuild of the
+  authenticated app instead (mobile-first redesign on the landing palette, plus
+  the §5/§6 surfaces that had no UI at all), so PRs 1–4 landed together rather
+  than in sequence. Everything each PR called for is done.
+- **§4a urgency** — resolved. `MemberForm`'s create call now goes to
+  `POST /api/v1/members`; there is no remaining reference to `/auth/register`
+  anywhere in `client/`.
 
 ---
 
@@ -367,9 +376,9 @@ generated invoices. It's returned by `GET /members/*` and accepted by
 `POST /members` and `PUT /members/{id}`, but **deliberately not accepted by
 `PUT /members/me`** — a tasker can't self-edit their own rate.
 
-- [ ] Add `payment_rate` to wherever `Member`/`User` types are declared
+- [x] Add `payment_rate` to wherever `Member`/`User` types are declared
       (see PR 3 above about consolidating those declarations).
-- [ ] `MemberForm.tsx`'s create/edit form should expose a `payment_rate`
+- [x] `MemberForm.tsx`'s create/edit form should expose a `payment_rate`
       input (admin-only, which it already is since that form is admin-gated).
 
 ### 2. Task upload & task-list endpoints
@@ -398,11 +407,11 @@ GET  /api/v1/disputes                                (admin, filterable)
 GET  /api/v1/disputes/export/pdf                     (admin)
 ```
 
-- [ ] There's currently no tasker-facing UI for "you have a disputed task" —
+- [x] There's currently no tasker-facing UI for "you have a disputed task" —
       worth a small banner/badge wherever `dispute_state` shows up as
       `DISPUTED` on a task-list row, since there's no email/push notification
       backing this (the tasker only finds out by checking the app).
-- [ ] Admin needs a disputes table view — `GET /api/v1/disputes` returns
+- [x] Admin needs a disputes table view — `GET /api/v1/disputes` returns
       task ID, both parties, raised date, status, and resolution info
       directly, so this should be a fairly thin table component.
 
@@ -418,14 +427,14 @@ GET  /api/v1/invoices/{id}
 GET  /api/v1/invoices/{id}/pdf
 ```
 
-- [ ] This unblocks §4 PR 4's `Invoices.tsx`/`InvoiceViewer.tsx` — they were
+- [x] This unblocks §4 PR 4's `Invoices.tsx`/`InvoiceViewer.tsx` — they were
       isolated behind mock data specifically pending this. See the checked-off
       item in §4 above.
-- [ ] One invoice = one tasker + one project + one billing period — a tasker
+- [x] One invoice = one tasker + one project + one billing period — a tasker
       working multiple projects needs one `generate` call per project, not
       a combined multi-project invoice (the PDF template has a single
       rate/cap per invoice, so this was a deliberate constraint, not a gap).
-- [ ] `TASKER` callers generating their own invoice never send `rate` or
+- [x] `TASKER` callers generating their own invoice never send `rate` or
       `payment_rate` — those are always server-computed. Only an `ADMIN`
       generating on someone else's behalf can pass overrides.
 
@@ -437,17 +446,213 @@ A new mandatory `ACCOUNT` field was added to the task-log upload pipeline —
 a short client/account code (e.g. `GT`, `JW`, `FD`), **max 4 characters**.
 If §5.2's task-upload UI is already in progress, this needs to be added to it.
 
-- [ ] **Bulk upload** (`POST /api/v1/tasks/import`): the CSV/XLSX file's
+- [x] **Bulk upload** (`POST /api/v1/tasks/import`): the CSV/XLSX file's
       header row must now include an `ACCOUNT` column alongside the existing
       five (full list in `backend-python/INVOICING_RULES.md` §1). Missing or
       >4-character values reject the whole file/row with a 400, same as the
       other required columns.
-- [ ] **Single entry** (`POST /api/v1/tasks`): body now requires an
+- [x] **Single entry** (`POST /api/v1/tasks`): body now requires an
       `account: string` field (see the updated shape in §5.2 above).
-- [ ] `GET /api/v1/tasks/mine` rows now include `account` — worth showing
+- [x] `GET /api/v1/tasks/mine` rows now include `account` — worth showing
       alongside `task_id` in whatever table/list renders task entries.
-- [ ] Generated invoices (`GET /api/v1/invoices/{id}` `items[]`, and the PDF
+- [x] Generated invoices (`GET /api/v1/invoices/{id}` `items[]`, and the PDF
       at `GET /api/v1/invoices/{id}/pdf`) now include `account` per line item.
       No frontend action needed unless you're rendering `items[]` yourself
       outside of just linking to the PDF — if so, add a narrow Account
       column, it's short by design (initials, 4 chars worst case).
+
+---
+
+## 7. [2026-08-19] Everything above is implemented — plus two new endpoints
+
+Two things happened in this pass, and it's worth being clear about which is
+which.
+
+**First: this document is now a record, not a to-do list.** Every checklist item
+in §2 (PR 1–4), §4a, §5 and §6 has been implemented in `client/`, and §4c's open
+questions are answered inline above. The work was done as one rebuild of the
+authenticated app rather than the proposed 4-PR sequence — see the note under
+§4c. Full detail is in `client/changes.md` (untracked, local).
+
+Headline: types are centralised in `src/types/` and imported from `@/types`
+everywhere; all networking goes through `src/services/`; the dashboards were
+redesigned mobile-first on the landing page's palette; and the surfaces §5 and
+§6 described — task upload, disputes, invoicing, the `ACCOUNT` field — now have
+real screens rather than mock data.
+
+**Second: the backend gained two endpoints and lost two bugs.** Those are new
+information, and are the part worth reading if you only read one thing.
+
+### 1. New: `GET /api/v1/tasks` (ADMIN/SUPERADMIN)
+
+```
+GET /api/v1/tasks?projectId=&taskerId=&taskStatus=&disputeState=&dateFrom=&dateTo=&limit=
+→ { summary: TaskOverviewSummary, entries: TaskEntryWithParties[] }
+```
+
+`summary` carries `total_entries`, `completed`, `disputed`, `forfeited`,
+`total_paid_minutes`, `taskers`, `projects` — all computed over the same filter
+set as the rows. Each entry is a normal task entry plus `tasker_name` and
+`project_name`, so an admin table doesn't have to join every row against
+`/members` and `/projects`.
+
+Added because admins previously had **no** view of task entries at all:
+`/tasks/mine` is tasker-scoped, the duplicate and dispute logs only show
+exceptions, and invoices don't exist until someone generates one. `limit`
+defaults to 500, capped at 1000.
+
+- [x] Used by `src/routes/admin/TaskLog.tsx` and `src/routes/admin/Dashboard.tsx`.
+
+### 2. New: `PATCH /api/v1/invoices/{id}/status` (ADMIN/SUPERADMIN)
+
+```
+PATCH /api/v1/invoices/{invoice_id}/status   { "status": "Draft|Issued|Paid|Overdue" }
+→ InvoiceResponse
+```
+
+Moving to `Paid` stamps `paid_at`; moving away from `Paid` clears it. The frozen
+`items`, `exclusions` and money fields are never rewritten.
+
+Added because nothing could move an invoice out of `Issued`, which made `Paid`,
+`Overdue` and `paid_at` unreachable — so `GET /invoices?status=` could filter on
+values that never occurred, and "outstanding" could never go down.
+
+- [x] Used by `src/routes/shared/InvoiceDetail.tsx` (admin-only control).
+
+### 3. Fixed: `POST /api/v1/projects/` 500'd on any revenue split
+
+Creating a project with a `revenue_split` body returned a 500 — the backend
+handed SQLAlchemy a Pydantic model for a JSON column. **Project creation from
+the UI was impossible.** Fixed; `POST /projects/` with a split now works. No
+contract change — if you had worked around this by omitting `revenue_split`, you
+can stop.
+
+### 4. Fixed: a task upload that raised a dispute returned 500
+
+`POST /api/v1/tasks` and `POST /api/v1/tasks/import` returned a 500 whenever the
+upload collided with another tasker's task ID — *after* committing, so the
+dispute was created and both entries flagged, but the uploader saw a generic
+error instead of the summary.
+
+This mattered more than it looks: per §5.3 there is no email or push behind
+disputes, so that response is the **only** moment a tasker is told who they
+collided with. Both endpoints now return their `TaskImportSummary` correctly,
+with `disputes_raised[].disputed_with.full_name` populated and the other party
+named in `message`.
+
+- [x] Surfaced by `src/components/tasks/ImportSummary.tsx`, which separates rows
+      recorded / duplicates skipped / disputes raised and links to the disputes
+      screen.
+
+### 5. `openapi.json` re-exported
+
+The snapshot in this repo was from 2026-08-07 and predated
+`PUT /members/{id}/reset-password` as well as items 1 and 2 above. It has been
+regenerated from the running app, so §4b's Option 1 is accurate again.
+
+---
+
+## 8. [2026-08-19] Dispute revocation, auto-forfeit, invoice carry-over & bulk generation
+
+All four are implemented in `client/` already — this section is the contract
+record, not a to-do list. The one item that changes a shape you may already be
+reading is §8.3.
+
+### 1. New: `POST /api/v1/disputes/{id}/revoke` (TASKER)
+
+Undoes a confirmation. The dispute returns to `PENDING`, the claim is cleared,
+and both entries go back to `DISPUTED` — either party can then claim again.
+
+Refused with a reason in three cases:
+- `403` — the caller is the resolved owner (only the *confirming* party may
+  revoke; the winner undoing their own win would defeat the handshake)
+- `409` — the 5-day window has closed, so the resolution is final
+- `409` — either entry has already been billed on an invoice
+
+The deadline is **not** extended by a revoke; it still runs from `raised_at`.
+
+- [x] Wired in `src/components/disputes/DisputeCard.tsx` and
+      `src/routes/client/Disputes.tsx`.
+
+### 2. Changed: `DisputeResponse` gained four fields
+
+```
+expires_at: string        // ISO — raised_at + 5 days
+days_remaining: int
+hours_remaining: int
+can_revoke: bool          // whether revoke would succeed right now
+```
+
+Prefer these over computing the countdown client-side — the server's clock is
+the one that decides, and `can_revoke` saves re-deriving the three rules above.
+
+- [x] `disputeDaysRemaining()` was removed from `src/types/dispute.ts` in favour
+      of the server fields; `disputeCountdown()` / `disputeUrgency()` replace it.
+
+### 3. ⚠️ Changed: invoice generation now sweeps up carry-over work
+
+**This changes which tasks land on an invoice, so it's worth knowing about even
+though no request shape broke.**
+
+The problem: a task disputed on 10 Aug is correctly excluded from the 1–15 Aug
+invoice; the dispute resolves on 20 Aug; under a strict period window that task
+would **never** be billed, because its date sits in an already-invoiced period.
+
+`TaskEntry` now carries `invoice_id`, stamped when an entry is billed, and
+generation asks for entries that are *unbilled and dated on or before
+`period_end`* rather than entries *inside the period*. So:
+
+- work that becomes billable after its own period was invoiced appears on the
+  **next** invoice, dated in the past;
+- nothing is ever billed twice, however many overlapping periods you generate;
+- **re-running a generation for the same period is safe** — it simply finds
+  nothing and returns `404`.
+
+`POST /api/v1/invoices/generate` accepts `include_carryover` (default `true`);
+pass `false` for a strict period-only invoice.
+
+Exclusion counts still describe the stated period only, so an old forfeited task
+isn't re-counted as an exclusion forever.
+
+- [x] Carried-over line items are surfaced on the invoice document in
+      `src/routes/shared/InvoiceDetail.tsx` — derived from `items[].task_date`
+      being before `period_start`, so no new response field was needed.
+
+### 4. New: `POST /api/v1/invoices/generate-bulk` (ADMIN/SUPERADMIN)
+
+```
+{ period_start, period_end, project_ids?, tasker_ids?, include_carryover?, dry_run? }
+→ { dry_run, period_start, period_end, generated_count, skipped_count,
+    total_value, lines: BulkInvoiceLine[] }
+```
+
+One invoice per tasker × project — a tasker on three projects gets three
+invoices, for the same reason a combined invoice was rejected in §5.4 (the PDF
+carries a single rate and cap). Pairs with nothing billable are returned as
+skipped **with a reason** rather than failing the run.
+
+`dry_run: true` costs the whole run and writes nothing. There are no rate
+overrides on this endpoint; single generation still has them.
+
+- [x] `src/components/invoices/BulkInvoiceDialog.tsx`, reached from
+      `/admin/invoices`. Two-step: preview, then commit.
+
+### 5. Behavioural: disputes now forfeit on an hourly schedule
+
+Previously the 5-day deadline was only evaluated when someone hit a dispute
+endpoint. There is now an hourly background sweep as well (plus one at startup),
+so entries flip even when nobody opens the app. The lazy check remains, so a
+read is never stale in between.
+
+Practical effect for the frontend: a dispute's `status` can change to
+`FORFEITED` without any user action, so don't cache dispute lists across long
+sessions.
+
+### 6. Schema note
+
+`task_entries.invoice_id` is a new nullable, indexed FK. Migration
+`24a1efebb0de` adds it and **backfills** existing invoices' entries by matching
+`(project, tasker, task_id)` against the frozen `items` — without that, the
+first generation after deploying would have re-billed the entire history.
+
+Run `alembic upgrade head` (the Docker entrypoint already does).

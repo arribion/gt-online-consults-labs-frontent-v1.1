@@ -1,62 +1,30 @@
-import { useEffect } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import toast from "react-hot-toast";
-import { Oval } from "react-loader-spinner";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { FullPageLoader } from "@/components/common/States";
+import { HOME_FOR_ROLE } from "@/constants/navigation";
+import type { MemberRole } from "@/types";
 
-type ProtectedRouteProps = {
-  allowedRoles?: ("SUPERADMIN" | "ADMIN" | "TASKER")[];
-};
+/**
+ * Client-side role checks are a routing convenience, not a security boundary —
+ * every protected endpoint re-checks the role server-side. This exists so a
+ * tasker who lands on an admin URL gets their own dashboard instead of a wall
+ * of 403s.
+ */
+export function ProtectedRoute({ allowedRoles }: { allowedRoles?: MemberRole[] }) {
+  const { isLoggedIn, isLoading, role } = useAuth();
+  const location = useLocation();
 
-export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-  const { isLoggedIn, isLoading, user } = useAuth();
-
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      toast.error("Please log in to view this page.");
-    } else if (
-      !isLoading &&
-      isLoggedIn &&
-      allowedRoles &&
-      user &&
-      !allowedRoles.includes(user.role as "TASKER" | "ADMIN")
-    ) {
-      toast.error("Unauthorized access.");
-    }
-  }, [isLoggedIn, isLoading, allowedRoles, user]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center mt-[15em]">
-        <Oval
-          height={80}
-          width={80}
-          color="#0EA5E9"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-          ariaLabel="oval-loading"
-          secondaryColor="#4fa94d"
-          strokeWidth={2}
-          strokeWidthSecondary={2}
-        />
-      </div>
-    );
-  }
+  if (isLoading) return <FullPageLoader label="Checking your session" />;
 
   if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    // Redirect to  respective dashboards if they land on the wrong route
-    return (
-      <Navigate
-        to={user.role === "SUPERADMIN" ? "/admin" : "/client/dashboard"}
-        replace
-      />
-    );
+  if (allowedRoles && role && !allowedRoles.includes(role)) {
+    return <Navigate to={HOME_FOR_ROLE[role]} replace />;
   }
 
   return <Outlet />;
-};
+}
+
+export default ProtectedRoute;

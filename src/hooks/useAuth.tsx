@@ -1,103 +1,108 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import toast from "react-hot-toast";
+import { authService, errorMessage, membersService } from "@/services";
+import { isAdminRole, type Member, type MemberRole } from "@/types";
 
-type User = {
-  role: "SUPERADMIN" | "ADMIN" | "TASKER";
-  email: string
-} | null;
-
-type AuthContextType = {
-  user: User;
+type AuthContextValue = {
+  /**
+   * The signed-in user's full profile. `/auth/verify` only returns name, email
+   * and role — but ids are needed all over the app (claiming a dispute,
+   * generating your own invoice, spotting yourself in a roster), so the session
+   * check and `/members/me` are resolved together and the profile is what the
+   * app reads.
+   */
+  user: Member | null;
+  role: MemberRole | null;
   isLoggedIn: boolean;
+  isAdmin: boolean;
+  /** True only while the initial session check is running. */
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  isSubmitting: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  /** Re-read the profile after the user edits it. */
+  refreshUser: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
-if (!BASE_URL) {
-  console.error(
-    "Environment Error: VITE_BASE_URL is missing from your .env file.",
-  );
-}
-
-const API_URL = `${BASE_URL}/api/v1/auth`;
-
-export const AuthProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [user, setUser] = useState<User>(null);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<Member | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Automatically check session on page mount/reload
-  useEffect(() => {
-    const verifyUserSession = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/verify`, {
-          withCredentials: true,
-        });
-        if (res.data?.success) {
-          setUser(res.data.user);
-        }
-      } catch (err) {
-        // Silently fail on mount if cookies are expired or missing
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    verifyUserSession();
+  const loadSession = useCallback(async () => {
+    const [, profile] = await Promise.all([authService.verify(), membersService.me()]);
+    setUser(profile);
   }, []);
 
-  // 2. Login function wired to your exact backend route
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const res = await axios.post(
-        `${API_URL}/login`,
-        { email, password },
-        { withCredentials: true }, // Handles HTTP-only cookies from backend
-      );
-      if (res.data?.success) {
-        setUser(res.data.user); // { email, role }
-        toast.success("Welcome back!");
+  useEffect(() => {
+    loadSession()
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
+  }, [loadSession]);
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setIsSubmitting(true);
+      try {
+        const session = await authService.login(email, password);
+        // The login response carries no id, so pull the full profile before
+        // handing control to the route guard.
+        const profile = await membersService.me().catch(() => null);
+        setUser(profile);
+        toast.success(`Welcome back, ${(profile?.full_name ?? session.full_name).split(" ")[0]}!`);
+        return true;
+      } catch (err) {
+        toast.error(errorMessage(err));
+        return false;
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.message || "Something went wrong.";
-      toast.error(errorMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 3. Logout function to clear backend cookies
-  const logout = async () => {
-    try {
-      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-      setUser(null);
-      toast.success("Logged out successfully.");
-    } catch (error) {
-      toast.error("Logout failed.");
-    }
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{ user, isLoggedIn: !!user, isLoading, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+    },
+    [],
   );
+
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // The cookie may already be gone; clearing local state is what matters.
+    }
+    setUser(null);
+    toast.success("Signed out.");
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      setUser(await membersService.me());
+    } catch (err) {
+      toast.error(errorMessage(err));
+    }
+  }, []);
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      role: user?.role ?? null,
+      isLoggedIn: !!user,
+      isAdmin: isAdminRole(user?.role),
+      isLoading,
+      isSubmitting,
+      login,
+      logout,
+      refreshUser,
+    }),
+    [user, isLoading, isSubmitting, login, logout, refreshUser],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
 
