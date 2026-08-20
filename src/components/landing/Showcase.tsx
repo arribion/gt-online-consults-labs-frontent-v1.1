@@ -5,7 +5,6 @@ import {
   Lightbulb,
   ListTodo,
   LogIn,
-  MessageSquareText,
   NotepadText,
   ScanFace,
   Search,
@@ -58,7 +57,7 @@ function DetailRows() {
       <div className="mx-auto max-w-7xl space-y-24 px-5 lg:px-8">
         {/* row 1 */}
         <div className="grid items-center gap-12 lg:grid-cols-2">
-          <Reveal>
+          <Reveal className="min-w-0">
             <h3 className="font-display text-2xl font-extrabold leading-snug text-frost sm:text-3xl">
               Get Smart Recommendations That <span className="text-sky2">Actually Help</span>
             </h3>
@@ -79,17 +78,17 @@ function DetailRows() {
               ))}
             </ul>
           </Reveal>
-          <Reveal delay={120}>
+          <Reveal delay={120} className="min-w-0">
             <GoalsMock title="Today's Goals" tint="bg-gradient-to-r from-azure to-sky2" />
           </Reveal>
         </div>
 
         {/* row 2 — reversed */}
         <div className="grid items-center gap-12 lg:grid-cols-2">
-          <Reveal delay={120} className="lg:order-1">
+          <Reveal delay={120} className="lg:order-1 min-w-0">
             <GoalsMock title="Team's Goals" tint="bg-gradient-to-r from-[#22b8a6] to-[#4fd8c6]" />
           </Reveal>
-          <Reveal className="lg:order-2">
+          <Reveal className="lg:order-2 min-w-0">
             <h3 className="font-display text-2xl font-extrabold leading-snug text-frost sm:text-3xl">
               Think Once. <span className="text-sky2">Take Action Forever.</span>
             </h3>
@@ -177,10 +176,10 @@ function HowItWorks() {
 /* ================= workflow ================= */
 function Workflow() {
   const tasks = [
-    { time: "9:00", t: "Review AI morning summary", tag: "Auto", tone: "text-sky2" },
-    { time: "11:30", t: "Investor call — notes auto-captured", tag: "Meeting", tone: "text-[#4fd8c6]" },
-    { time: "14:00", t: "3 tasks generated from call notes", tag: "AI", tone: "text-amber" },
-    { time: "16:30", t: "Follow-up email drafted & linked", tag: "Draft", tone: "text-[#9db4ff]" },
+    { time: "9:00", t: "AI summary", tag: "Auto", tone: "text-sky2" },
+    { time: "11:30", t: "Notes generation", tag: "Meeting", tone: "text-[#4fd8c6]" },
+    { time: "14:00", t: "Tasks generation", tag: "AI", tone: "text-amber" },
+    { time: "16:30", t: "Follow-up email", tag: "Draft", tone: "text-[#9db4ff]" },
   ];
   return (
     <section id="workflow" className="scroll-mt-24 py-24">
@@ -199,7 +198,7 @@ function Workflow() {
         </Reveal>
 
         <div className="mt-14 grid items-center gap-12 lg:grid-cols-2">
-          <Reveal>
+          <Reveal className="min-w-0">
             <div className="glow-ring rounded-2xl border border-line2/60 bg-deep/90 p-5">
               <div className="flex items-center justify-between border-b border-line/60 pb-3">
                 <p className="font-display text-sm font-bold text-frost">Today's tasks</p>
@@ -214,9 +213,6 @@ function Workflow() {
                     className="flex items-center gap-3 rounded-xl border border-line/60 bg-panel/60 p-3 transition-all hover:translate-x-1 hover:border-line2"
                   >
                     <span className="w-10 shrink-0 text-[10px] font-bold text-dim">{task.time}</span>
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-ink2 text-mist">
-                      <MessageSquareText className="h-3.5 w-3.5" />
-                    </span>
                     <p className="min-w-0 flex-1 truncate text-xs font-medium text-frost/90">{task.t}</p>
                     <span className={`text-[10px] font-bold ${task.tone}`}>{task.tag}</span>
                   </div>
@@ -225,7 +221,7 @@ function Workflow() {
             </div>
           </Reveal>
 
-          <Reveal delay={120}>
+          <Reveal delay={120} className="min-w-0">
             <h3 className="font-display text-2xl font-extrabold text-frost">
               Organize Instantly, <span className="text-sky2">Not Manually</span>
             </h3>

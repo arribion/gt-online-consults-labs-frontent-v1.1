@@ -172,7 +172,12 @@ html {
     overflow-x: hidden;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
   }
 
@@ -186,8 +191,16 @@ html {
     scrollbar-width: thin;
     scrollbar-color: var(--color-line2) transparent;
   }
-  *::-webkit-scrollbar { width: 8px; height: 8px; }
-  *::-webkit-scrollbar-track { background: transparent; }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
   *::-webkit-scrollbar-thumb {
     background: var(--color-line2);
     border-radius: 999px;
@@ -201,11 +214,25 @@ html {
 }
 
 @layer utilities {
-  .gradient-hero { background: var(--gradient-hero); }
-  .gradient-primary { background: var(--gradient-primary); }
-  .shadow-card { box-shadow: var(--shadow-card); }
-  .shadow-card-hover { box-shadow: var(--shadow-card-hover); }
-  .shadow-button { box-shadow: var(--shadow-button); }
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .shadow-button {
+    box-shadow: var(--shadow-button);
+  }
 
   /* horizontal-scroll container for wide tables — the page itself never scrolls sideways */
   .scroll-x {
@@ -226,6 +253,7 @@ html {
     radial-gradient(800px 700px at 50% 110%, rgba(20, 74, 148, 0.16), transparent 60%),
     linear-gradient(180deg, #061226 0%, #050e1e 45%, #040b18 100%);
 }
+
 .ambient::before {
   content: "";
   position: absolute;
@@ -234,6 +262,7 @@ html {
   background-size: 34px 34px;
   mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 0%, transparent 75%);
 }
+
 .ambient::after {
   content: "";
   position: absolute;
@@ -266,6 +295,7 @@ html {
     transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
+
 .reveal.in {
   opacity: 1;
   transform: translateY(0);
@@ -273,34 +303,89 @@ html {
 
 /* ---------- keyframes ---------- */
 @keyframes floaty {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-@keyframes floaty2 {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
-}
-@keyframes pulseDot {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(92, 198, 255, 0.45); }
-  70% { box-shadow: 0 0 0 9px rgba(92, 198, 255, 0); }
-}
-@keyframes dashFlow {
-  to { stroke-dashoffset: -240; }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes quoteIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.quote-swap { animation: quoteIn 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
 
-.anim-float { animation: floaty 6s ease-in-out infinite; }
-.anim-float2 { animation: floaty2 7s ease-in-out infinite; }
-.anim-pulse-dot { animation: pulseDot 2.4s ease-out infinite; }
-.anim-dash { stroke-dasharray: 6 8; animation: dashFlow 9s linear infinite; }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floaty2 {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes pulseDot {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(92, 198, 255, 0.45);
+  }
+
+  70% {
+    box-shadow: 0 0 0 9px rgba(92, 198, 255, 0);
+  }
+}
+
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes quoteIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quote-swap {
+  animation: quoteIn 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.anim-float {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+.anim-float2 {
+  animation: floaty2 7s ease-in-out infinite;
+}
+
+.anim-pulse-dot {
+  animation: pulseDot 2.4s ease-out infinite;
+}
+
+.anim-dash {
+  stroke-dasharray: 6 8;
+  animation: dashFlow 9s linear infinite;
+}
 
 .glow-ring {
   box-shadow:
@@ -321,6 +406,7 @@ html {
 .card-hover {
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s, box-shadow 0.35s, background-color 0.35s;
 }
+
 .card-hover:hover {
   transform: translateY(-5px);
   border-color: rgba(92, 198, 255, 0.4);
@@ -333,11 +419,31 @@ html {
   -webkit-backdrop-filter: blur(14px);
 }
 
-.mock-scroll::-webkit-scrollbar { width: 4px; }
-.mock-scroll::-webkit-scrollbar-thumb { background: #234a78; border-radius: 4px; }
+.mock-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mock-scroll::-webkit-scrollbar-thumb {
+  background: #234a78;
+  border-radius: 4px;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
-  .anim-float, .anim-float2, .anim-pulse-dot, .anim-dash, .text-shimmer { animation: none; }
-  .card-hover:hover { transform: none; }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .anim-float,
+  .anim-float2,
+  .anim-pulse-dot,
+  .anim-dash,
+  .text-shimmer {
+    animation: none;
+  }
+
+  .card-hover:hover {
+    transform: none;
+  }
 }
