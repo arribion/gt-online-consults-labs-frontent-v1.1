@@ -1,5 +1,5 @@
 import { AtSign, Bug, Globe, Send } from "lucide-react";
-import { Logo } from "./ui";
+import { Logo } from "../common/Logo";
 
 const cols = [
   {

@@ -10,6 +10,7 @@ import { CountPill } from "@/components/common/StatusBadge";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { ADMIN_NAV, TASKER_NAV } from "@/constants/navigation";
 import type { NavSection } from "@/types";
+import { Logo } from "@/components/common/Logo";
 
 function Brand({ onNavigate }: { onNavigate?: () => void }) {
   return (
@@ -19,18 +20,7 @@ function Brand({ onNavigate }: { onNavigate?: () => void }) {
       className="flex items-center gap-2.5 rounded-lg px-1 py-1 min-w-0"
       aria-label="GT Online Consults home"
     >
-      <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-linear-to-br from-azure to-[#eff3f9] shadow-[0_8px_24px_-8px_rgba(47,157,255,0.7)]">
-        <img src={logo} alt="" className="max-w-[1.6em]" />
-        <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-amber shadow-[0_0_10px_rgba(255,180,84,0.9)]" />
-      </span>
-      <span className="min-w-0">
-        <span className="block truncate font-display text-sm font-bold tracking-tight text-frost">
-          GT. <span className="text-sky2">ONLINECONSULTS</span>
-        </span>
-        <span className="block text-[9px] uppercase tracking-[0.2em] text-dim">
-          AI &amp; Technology
-        </span>
-      </span>
+      <Logo/>
     </Link>
   );
 }

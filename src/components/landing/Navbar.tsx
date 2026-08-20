@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, LayoutDashboard, LogIn, Menu, X } from "lucide-react";
-import { Logo } from "./ui";
+import { Logo } from "../common/Logo";
 import { useAuth } from "../../hooks/useAuth";
 import { HOME_FOR_ROLE } from "../../constants/navigation";
 

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import {  Star } from "lucide-react";
 import { useReveal } from "../../hooks/hooks";
-import logo from "../../assets/gt-logo.png";
+
 /* ---------- scroll reveal wrapper ---------- */
 export function Reveal({
   children,
@@ -30,25 +30,7 @@ export function SectionTag({ icon, children }: { icon?: ReactNode; children: Rea
   );
 }
 
-/* ---------- brand ---------- */
-export function Logo({ compact = false }: { compact?: boolean }) {
-  return (
-    <a href="#top" className="group flex items-center gap-2.5">
-      <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-linear-to-br from-azure to-[#eff3f9] shadow-[0_8px_24px_-8px_rgba(47,157,255,0.7)]">
-        <img src={logo} alt="" className="max-w-[2em]" />
-        <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-amber shadow-[0_0_10px_rgba(255,180,84,0.9)]" />
-      </span>
-      {!compact && (
-        <div>
-          <span className="font-display text-lg font-bold tracking-tight text-frost">
-            GT. <span className="text-sky2">ONLINECONSULTS</span>
-          </span>
-          <p className="text-[4px]">AI & TECHNOLOGY</p>
-        </div>
-      )}
-    </a>
-  );
-}
+
 
 /* ---------- star rating ---------- */
 export function Stars({ n = 5 }: { n?: number }) {
