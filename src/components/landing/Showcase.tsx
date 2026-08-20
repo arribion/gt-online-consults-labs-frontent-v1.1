@@ -176,10 +176,10 @@ function HowItWorks() {
 /* ================= workflow ================= */
 function Workflow() {
   const tasks = [
-    { time: "9:00", t: "Review AI morning summary", tag: "Auto", tone: "text-sky2" },
-    { time: "11:30", t: "Investor call — notes auto-captured", tag: "Meeting", tone: "text-[#4fd8c6]" },
-    { time: "14:00", t: "3 tasks generated from call notes", tag: "AI", tone: "text-amber" },
-    { time: "16:30", t: "Follow-up email drafted & linked", tag: "Draft", tone: "text-[#9db4ff]" },
+    { time: "9:00", t: "AI summary", tag: "Auto", tone: "text-sky2" },
+    { time: "11:30", t: "Notes generation", tag: "Meeting", tone: "text-[#4fd8c6]" },
+    { time: "14:00", t: "Tasks generation", tag: "AI", tone: "text-amber" },
+    { time: "16:30", t: "Follow-up email", tag: "Draft", tone: "text-[#9db4ff]" },
   ];
   return (
     <section id="workflow" className="scroll-mt-24 py-24">
