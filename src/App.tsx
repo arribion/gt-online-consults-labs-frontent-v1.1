@@ -18,7 +18,7 @@ import NotFound from "@/components/NotFound";
 const About = lazy(() => import("@/routes/landing/About"));
 const ContactUs = lazy(() => import("@/routes/landing/ContactUs"));
 
-const Dashboard = lazy(() => import("@/routes/client/Dashboard"));
+const Dashboard = lazy(() => import("@/routes/client/dashboard"));
 const MyTasks = lazy(() => import("@/routes/client/MyTasks"));
 const LogTasks = lazy(() => import("@/routes/client/LogTasks"));
 const ClientDisputes = lazy(() => import("@/routes/client/Disputes"));

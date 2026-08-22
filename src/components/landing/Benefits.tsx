@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  BellRing,
   CalendarDays,
   CheckCircle2,
   Cloud,
@@ -231,48 +230,6 @@ export default function Benefits() {
             </div>
           </Reveal>
 
-          {/* Proactive Reminders — wide */}
-          <Reveal delay={100} className="lg:col-span-2">
-            <div className="card-hover flex h-full flex-col gap-6 rounded-2xl border border-line2/60 bg-panel/60 p-7 sm:flex-row sm:items-center">
-              <div className="sm:flex-1">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#f07fa0]/15 text-[#f596b4]">
-                  <BellRing className="h-5 w-5" />
-                </span>
-                <h3 className="mt-4 font-display text-lg font-bold text-frost">
-                  Proactive Reminders
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-mist">
-                  Smart reminders surface when tasks are about to slip — gentle
-                  nudges before deadlines, not guilty notifications after.
-                </p>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                {[
-                  {
-                    t: "9:00 — Standup notes auto-summarized",
-                    tone: "text-[#4fd8c6]",
-                  },
-                  {
-                    t: "13:30 — Follow up with Ari (3 days silent)",
-                    tone: "text-amber",
-                  },
-                  {
-                    t: "17:00 — Wrap-up: 2 tasks rolled to tomorrow",
-                    tone: "text-sky2",
-                  },
-                ].map((r) => (
-                  <div
-                    key={r.t}
-                    className="flex items-center gap-2.5 rounded-lg border border-line/70 bg-deep/70 px-3.5 py-2.5">
-                    <span
-                      className={`h-1.5 w-1.5 shrink-0 rounded-full bg-current ${r.tone}`}
-                    />
-                    <span className="text-[11px] text-mist">{r.t}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
         </div>
       </div>
     </section>

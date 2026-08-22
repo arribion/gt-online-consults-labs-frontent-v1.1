@@ -1,4 +1,4 @@
-import { AtSign, Bug, Globe, Send } from "lucide-react";
+import { AtSign, Globe, Send } from "lucide-react";
 import { Logo } from "../common/Logo";
 
 const cols = [
@@ -16,7 +16,6 @@ const cols = [
 export default function Footer() {
   return (
     <footer className="relative">
-
       {/* footer grid */}
       <div className="border-t border-line/60 bg-deep/70">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
@@ -60,35 +59,22 @@ export default function Footer() {
 
         <div className="border-t border-line/50">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-6 text-xs text-dim sm:flex-row lg:px-8">
-            <p className="text-sm text-sky-100">
+            <p className="text-sm text-sky-600">
               &copy; {new Date().getFullYear()} GT. All Rights Reserved.
             </p>
-            <p>
-              Designed and Developed by:{" "}
-              <a
-                target="_blank"
-                href="www.arribion.com"
-                className="font-semibold text-mist transition-colors hover:text-sky2">
-                - Arribion Technologies
-              </a>
-            </p>
+            <div>
+              <p>
+                Designed and Developed by:{" "}
+                <a
+                  target="_blank"
+                  href="www.arribion.com"
+                  className="font-semibold text-mist transition-colors hover:text-sky2">
+                  - Arribion Technologies
+                </a>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t flex justify-center border-sky-400 mt-8 px-6 py-4 flex-col md:flex-row items-center gap-4">
-        <a
-          href="https://wa.me/254707468863?text=I would like to report a bug/suggestion in the qt-online application."
-          target="_blank"
-          rel="noopener noreferrer">
-          <button
-            className="flex items-center gap-2 rounded-3xl bg-linear-to-r from-emerald-500 to-sky-500 px-4 py-2 text-sm font-semibold text-white hover:from-emerald-600 hover:to-sky-600 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-            aria-label="Report a bug or suggestion">
-            <Bug size={16} />
-            Report a Bug & Suggestions
-          </button>
-        </a>
       </div>
     </footer>
   );

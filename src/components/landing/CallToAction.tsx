@@ -1,13 +1,21 @@
 import { ArrowRight, Rss } from "lucide-react";
 import { Reveal } from "./ui";
-
+import bg from "../../assets/bg.gif"
 const CallToAction = () => {
   return (
       <section>
            {/* CTA band */}
                 <div className="mx-auto max-w-7xl px-5 pb-20 lg:px-8">
                   <Reveal>
-                    <div className="relative overflow-hidden rounded-3xl border border-azure/40 bg-linear-to-br from-[#0c2c58] via-panel to-ink2 px-8 py-14 text-center sm:px-14">
+          <div
+            style={{
+              backgroundImage: `url(${bg})`,
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover"
+            }}
+            
+            className="relative overflow-hidden rounded-3xl border border-azure/40 bg-linear-to-br from-[#0c2c58] via-panel to-ink2 px-8 py-14 text-center sm:px-14">
                       <div
                         className="pointer-events-none absolute inset-0 opacity-60"
                         style={{
