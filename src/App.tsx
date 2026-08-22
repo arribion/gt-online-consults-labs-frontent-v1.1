@@ -15,10 +15,11 @@ import NotFound from "@/components/NotFound";
  * they are split out of the entry bundle: a visitor who only ever sees the
  * landing page or the login form never downloads them.
  */
+
 const About = lazy(() => import("@/routes/landing/About"));
 const ContactUs = lazy(() => import("@/routes/landing/ContactUs"));
 
-const Dashboard = lazy(() => import("@/routes/client/dashboard"));
+const Dashboard = lazy(() => import("@/routes/client/Dashboard"));
 const MyTasks = lazy(() => import("@/routes/client/MyTasks"));
 const LogTasks = lazy(() => import("@/routes/client/LogTasks"));
 const ClientDisputes = lazy(() => import("@/routes/client/Disputes"));
